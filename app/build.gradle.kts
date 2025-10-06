@@ -12,21 +12,16 @@ android {
 
 
     namespace = "com.example.aagnar"
-    compileSdk = 36
+    compileSdk = 34
 
     defaultConfig {
-
-
-       manifestPlaceholders["appAuthRedirectScheme"] = "com.example.aagnar"
-
+        manifestPlaceholders["appAuthRedirectScheme"] = "com.example.aagnar"
 
         applicationId = "com.example.aagnar"
         minSdk = 24
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.2"
-
-
+        targetSdk = 34
+        versionCode = 2
+        versionName = "2.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -164,6 +159,9 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // pjsip-aagnar
-    implementation(project(":pjsip-aagnar"))
-}
+    // implementation(libs.linphone.sdk.android)
+
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))
+
+
+ }

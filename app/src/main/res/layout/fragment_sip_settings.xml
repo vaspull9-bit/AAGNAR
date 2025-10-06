@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SIP Account Settings"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Username" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:inputType="textPassword" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etDomain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="SIP Domain (e.g., sip.example.com)"
+                android:text="sip.linphone.org" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/btnSaveAccount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save SIP Account"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status: Not configured"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp"
+            android:gravity="center" />
+
+    </LinearLayout>
+</layout>

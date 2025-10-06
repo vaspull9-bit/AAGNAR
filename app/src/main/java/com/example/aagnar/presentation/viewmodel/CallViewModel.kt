@@ -3,12 +3,19 @@ package com.example.aagnar.presentation.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.aagnar.domain.repository.SipRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CallViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class CallViewModel @Inject constructor(
+    application: Application,
+    private val sipRepository: SipRepository
+) : AndroidViewModel(application) {
 
     private val _callState = MutableStateFlow<CallState>(CallState.Idle)
     val callState: StateFlow<CallState> = _callState.asStateFlow()
@@ -25,11 +32,42 @@ class CallViewModel(application: Application) : AndroidViewModel(application) {
     private val _callDuration = MutableStateFlow(0L)
     val callDuration: StateFlow<Long> = _callDuration.asStateFlow()
 
+    private val _callStatus = MutableStateFlow("IDLE")
+    val callStatus: StateFlow<String> = _callStatus.asStateFlow()
+    ///////////////////////////////////////////////////
+    //
+    //            Функции
+    //
+    //
+    ////////////////////////////////////////////////////
+
+    fun updateCallStatus() {
+        viewModelScope.launch {
+            // TODO: Получить реальный статус из SIP
+            _callStatus.value = "ACTIVE" // временная заглушка
+        }
+    }
+
+    fun holdCall() {
+        viewModelScope.launch {
+            sipRepository.holdCall()
+            updateCallStatus()
+        }
+    }
+
+    fun unholdCall() {
+        viewModelScope.launch {
+            sipRepository.unholdCall()
+            updateCallStatus()
+        }
+    }
+
+
+
     fun makeCall(contactAddress: String, isVideoCall: Boolean) {
         viewModelScope.launch {
             _callState.value = CallState.Connecting(contactAddress, isVideoCall)
-            // Симуляция установки соединения
-            kotlinx.coroutines.delay(2000)
+            sipRepository.makeCall(contactAddress) // Реальный вызов через Linphone!
             _callState.value = CallState.Active(contactAddress, isVideoCall)
             startCallTimer()
         }
@@ -39,19 +77,41 @@ class CallViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _callState.value = CallState.Disconnected
             _callDuration.value = 0L
+            sipRepository.endCall()
+            updateCallStatus() // ДОБАВЬ ЭТУ СТРОКУ
         }
     }
 
     fun toggleMute() {
-        _isMuted.value = !_isMuted.value
+        viewModelScope.launch {
+            _isMuted.value = !_isMuted.value
+            // TODO: Реальное управление микрофоном через SIP
+            if (_isMuted.value) {
+                sipRepository.muteMicrophone()
+            } else {
+                sipRepository.unmuteMicrophone()
+            }
+        }
     }
 
     fun toggleSpeaker() {
-        _isSpeakerOn.value = !_isSpeakerOn.value
+        viewModelScope.launch {
+            _isSpeakerOn.value = !_isSpeakerOn.value
+            // TODO: Реальное переключение динамика
+            sipRepository.toggleSpeaker(_isSpeakerOn.value)
+        }
     }
 
     fun toggleVideo() {
-        _isVideoOn.value = !_isVideoOn.value
+        viewModelScope.launch {
+            _isVideoOn.value = !_isVideoOn.value
+            // TODO: Реальное управление видео через SIP
+            if (_isVideoOn.value) {
+                sipRepository.enableVideo()
+            } else {
+                sipRepository.disableVideo()
+            }
+        }
     }
 
     private fun startCallTimer() {
@@ -66,6 +126,8 @@ class CallViewModel(application: Application) : AndroidViewModel(application) {
     fun answerCall(caller: String, isVideo: Boolean) {
         viewModelScope.launch {
             _callState.value = CallState.Active(caller, isVideo)
+            // TODO: Реальный ответ на звонок через SIP
+            sipRepository.answerCall()
             startCallTimer()
         }
     }

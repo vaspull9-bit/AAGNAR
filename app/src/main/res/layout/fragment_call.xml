@@ -15,6 +15,44 @@
             android:textSize="18sp"
             android:layout_marginBottom="24dp" />
 
+        <!-- ПЕРВЫЙ РЯД КНОПОК -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/btnMute"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Mute"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btnSpeaker"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Speaker"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btnVideo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Video"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <!-- ВТОРОЙ РЯД КНОПОК -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -23,26 +61,41 @@
             android:layout_marginBottom="16dp">
 
             <Button
-                android:id="@+id/btnMute"
-                android:layout_width="wrap_content"
+                android:id="@+id/btnHold"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Mute"
-                android:layout_marginEnd="8dp" />
+                android:text="Hold"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:textSize="12sp" />
 
             <Button
-                android:id="@+id/btnSpeaker"
-                android:layout_width="wrap_content"
+                android:id="@+id/btnUnhold"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Speaker"
-                android:layout_marginEnd="8dp" />
+                android:text="Unhold"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:textSize="12sp" />
 
+            <!-- Пустая кнопка для выравнивания -->
             <Button
-                android:id="@+id/btnVideo"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Video" />
+                android:text=""
+                android:visibility="invisible"
+                android:layout_weight="1" />
 
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btnMakeCall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Call Test"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="16dp" />
 
         <Button
             android:id="@+id/btnEndCall"
