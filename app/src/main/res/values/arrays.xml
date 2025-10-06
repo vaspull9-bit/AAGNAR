@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="protocols">
+        <item>SIP</item>
+        <item>IAX2</item>
+    </string-array>
+
+    <string-array name="audio_codecs">
+        <item>Opus</item>
+        <item>Speex 8000</item>
+        <item>Speex 16000</item>
+        <item>Speex 32000</item>
+        <item>G.711u</item>
+        <item>G.711a</item>
+        <item>GSM</item>
+        <item>G.722</item>
+    </string-array>
+
+    <string-array name="video_codecs">
+        <item>VP8</item>
+        <item>VP9</item>
+        <item>H.264</item>
+    </string-array>
+</resources>
