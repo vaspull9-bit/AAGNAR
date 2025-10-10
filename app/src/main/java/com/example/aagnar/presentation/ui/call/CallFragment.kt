@@ -1,20 +1,19 @@
 // presentation/ui/call/CallFragment.kt
 package com.example.aagnar.presentation.ui.call
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import dagger.hilt.android.AndroidEntryPoint
 import com.example.aagnar.databinding.FragmentCallBinding
 import com.example.aagnar.presentation.viewmodel.CallViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import android.graphics.Color
-import android.widget.Button
-
 
 @AndroidEntryPoint
 class CallFragment : Fragment() {
@@ -36,17 +35,50 @@ class CallFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupUI()
         observeCallState()
-        observeCallStatus() // ДОБАВЬ ЭТУ СТРОКУ
+        observeCallStatus()
+        observeCallDuration() // ДОБАВИЛ ТАЙМЕР
+        // В onViewCreated() после observeCallDuration():
+        // В onViewCreated() после observeCallDuration():
+        lifecycleScope.launch {
+            viewModel.callState.collect { state ->
+                if (state is com.example.aagnar.presentation.viewmodel.CallState.Active) {
+                    updateCallHistory(state.contactAddress)
+                }
+            }
+        }
+    }
 
+    // Новый метод:
+    private fun updateCallHistory(contact: String) {
+        val displayName = contact.replace("sip:", "").replace("@sip.linphone.org", "")
+        val currentTime = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(java.util.Date())
+        val currentText = binding.tvCallHistory.text.toString()
 
-        binding.btnMakeCall.setOnClickListener {
-            val testNumber = "sip:echo@sip.linphone.org"
-            viewModel.makeCall(testNumber, false)
-            binding.tvCallStatus.text = "Calling echo test..."
+        // Ищем существующую запись
+        val regex = "- $displayName.*".toRegex()
+        val match = regex.find(currentText)
+
+        val newEntry = if (match != null) {
+            val oldEntry = match.value
+            val countMatch = ".*\\((\\d+)\\)".toRegex().find(oldEntry)
+            val count = countMatch?.groupValues?.get(1)?.toInt() ?: 1
+            "- $displayName (${count + 1}) - $currentTime"
+        } else {
+            "- $displayName - $currentTime"
         }
 
+        // Обновляем историю
+        val updatedHistory = if (match != null) {
+            currentText.replace(regex, newEntry)
+        } else {
+            val entries = currentText.replace("Recent calls:\n", "").split("\n").toMutableList()
+            entries.add(0, newEntry)
+            // Ограничиваем 5 записями
+            if (entries.size > 5) entries.removeAt(entries.size - 1)
+            "Recent calls:\n${entries.joinToString("\n")}"
+        }
 
-
+        binding.tvCallHistory.text = updatedHistory
     }
 
     private fun setupUI() {
@@ -68,31 +100,46 @@ class CallFragment : Fragment() {
             updateButtonState(binding.btnVideo, viewModel.isVideoOn.value)
         }
 
-        // End Call button
-        binding.btnEndCall.setOnClickListener {
-            viewModel.endCall()
-        }
-
+        // Hold button
         binding.btnHold.setOnClickListener {
             viewModel.holdCall()
             updateHoldButtons(true)
         }
 
+        // Unhold button
         binding.btnUnhold.setOnClickListener {
             viewModel.unholdCall()
             updateHoldButtons(false)
         }
-        binding.btnMakeCall.setOnClickListener {
-            val number = "sip:test@sip.linphone.org"
-            viewModel.makeCall(number, false)
-        }
 
-
-// В метод setupUI() добавляем:
+        // Make Call button
         binding.btnMakeCall.setOnClickListener {
-            val testNumber = "sip:echo@sip.linphone.org"  // Тестовый эхо-сервер
+            val testNumber = "sip:echo@sip.linphone.org"
             viewModel.makeCall(testNumber, false)
             binding.tvCallStatus.text = "Calling echo test..."
+        }
+
+        // End Call button
+        binding.btnEndCall.setOnClickListener {
+            viewModel.endCall()
+        }
+
+        binding.btnCallContact.setOnClickListener {
+            val aliceNumber = "sip:alice@sip.linphone.org"
+            viewModel.makeCall(aliceNumber, false)
+            binding.tvCallStatus.text = "Calling Alice..."
+        }
+
+        binding.btnClearHistory.setOnClickListener {
+            binding.tvCallHistory.text = "Recent calls:"
+        }
+
+        binding.btnContacts.setOnClickListener {
+            val contactsFragment = com.example.aagnar.presentation.ui.contacts.ContactsFragment()
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(android.R.id.content, contactsFragment) // СИСТЕМНЫЙ КОНТЕЙНЕР
+                .addToBackStack(null)
+                .commit()
         }
 
     }
@@ -104,11 +151,9 @@ class CallFragment : Fragment() {
 
     private fun updateButtonState(button: Button, isActive: Boolean) {
         if (isActive) {
-            // Зеленый когда активно
             button.setBackgroundColor(Color.parseColor("#4CAF50"))
             button.setTextColor(Color.WHITE)
         } else {
-            // Синий когда неактивно
             button.setBackgroundColor(Color.parseColor("#2196F3"))
             button.setTextColor(Color.WHITE)
         }
@@ -125,7 +170,8 @@ class CallFragment : Fragment() {
                         binding.tvCallStatus.text = "Calling ${state.contactAddress}..."
                     }
                     is com.example.aagnar.presentation.viewmodel.CallState.Active -> {
-                        binding.tvCallStatus.text = "In call with ${state.contactAddress}"
+                        val displayName = state.contactAddress.replace("sip:", "").replace("@sip.linphone.org", "")
+                        binding.tvCallStatus.text = "✅ LIVE CALL\nWith: $displayName"
                     }
                     is com.example.aagnar.presentation.viewmodel.CallState.Incoming -> {
                         binding.tvCallStatus.text = "Incoming from ${state.caller}"
@@ -138,11 +184,29 @@ class CallFragment : Fragment() {
         }
     }
 
-    // ДОБАВЬ ЭТОТ НОВЫЙ МЕТОД:
+    // ДОБАВИЛ ТАЙМЕР
+    private fun observeCallDuration() {
+        lifecycleScope.launch {
+            viewModel.callDuration.collect { duration ->
+                val currentText = binding.tvCallStatus.text.toString()
+                if (currentText.contains("In call with")) {
+                    // ИСПРАВЛЯЕМ ЭТУ СТРОКУ:
+                    when (val state = viewModel.callState.value) {
+                        is com.example.aagnar.presentation.viewmodel.CallState.Active -> {
+                            binding.tvCallStatus.text = "In call with ${state.contactAddress}\nDuration: ${duration}s"
+                        }
+                        else -> {
+                            binding.tvCallStatus.text = "In call\nDuration: ${duration}s"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun observeCallStatus() {
         lifecycleScope.launch {
             viewModel.callStatus.collect { status ->
-                // Добавляем статус к основному тексту
                 val currentText = binding.tvCallStatus.text.toString()
                 if (!currentText.contains("Status:")) {
                     binding.tvCallStatus.text = "$currentText\nStatus: $status"
