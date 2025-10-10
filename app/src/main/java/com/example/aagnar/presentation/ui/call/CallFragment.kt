@@ -35,7 +35,7 @@ class CallFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupUI()
         observeCallState()
-        observeCallStatus()
+        observeSipStatus()
         observeCallDuration() // ДОБАВИЛ ТАЙМЕР
         // В onViewCreated() после observeCallDuration():
         // В onViewCreated() после observeCallDuration():
@@ -204,13 +204,16 @@ class CallFragment : Fragment() {
         }
     }
 
-    private fun observeCallStatus() {
+    private fun observeSipStatus() {
         lifecycleScope.launch {
-            viewModel.callStatus.collect { status ->
+            while (true) {
+                val sipStatus = (requireActivity().application as com.example.aagnar.AagnarApplication)
+                    .linphoneService.getRegistrationStatus()
                 val currentText = binding.tvCallStatus.text.toString()
-                if (!currentText.contains("Status:")) {
-                    binding.tvCallStatus.text = "$currentText\nStatus: $status"
+                if (!currentText.contains("SIP:")) {
+                    binding.tvCallStatus.text = "$currentText\nSIP: $sipStatus"
                 }
+                kotlinx.coroutines.delay(5000) // Обновляем каждые 5 секунд
             }
         }
     }

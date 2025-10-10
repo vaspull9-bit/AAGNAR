@@ -1,4 +1,4 @@
-// MainActivity.kt AAGNAR v2.3.12 с Linphone
+// MainActivity.kt AAGNAR v2.3.13 с Linphone
 // 2:06 28.09.2025 - старт
 package com.example.aagnar
 import android.os.Bundle
@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showAboutDialog() {
         val aboutText = """
-            DeeR_Tuund(C) 2025. AAGNAR v2.3.12
+            DeeR_Tuund(C) 2025. AAGNAR v2.3.13
             
             Браузер для интернета
             

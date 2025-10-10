@@ -140,4 +140,17 @@ class LinphoneService(private val context: Context) {
             println("Unhold call failed: ${e.message}")
         }
     }
+    fun getRegistrationStatus(): String {
+        return core?.defaultAccount?.let { account ->
+            when (account.state) {
+                RegistrationState.Ok -> "✅ REGISTERED"
+                RegistrationState.Progress -> "🔄 REGISTERING"
+                RegistrationState.Failed -> "❌ REGISTRATION FAILED"
+                else -> "❓ NOT REGISTERED"
+            }
+        } ?: "❓ NO ACCOUNT"
+    }
+
+
+
 }
