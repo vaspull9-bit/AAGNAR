@@ -1,9 +1,10 @@
+// CallViewModel.kt
 package com.example.aagnar.presentation.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.aagnar.domain.repository.SipRepository
+import com.example.aagnar.domain.usecase.MatrixUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CallViewModel @Inject constructor(
     application: Application,
-    private val sipRepository: SipRepository
+    private val matrixUseCase: MatrixUseCase  // 🔥 ЗАМЕНИЛИ НА MATRIX
 ) : AndroidViewModel(application) {
 
     private val _callState = MutableStateFlow<CallState>(CallState.Idle)
@@ -34,42 +35,42 @@ class CallViewModel @Inject constructor(
 
     private val _callStatus = MutableStateFlow("IDLE")
     val callStatus: StateFlow<String> = _callStatus.asStateFlow()
+
     ///////////////////////////////////////////////////
     //
-    //            Функции
-    //
+    //            ФУНКЦИИ ДЛЯ MATRIX ЗВОНКОВ
     //
     ////////////////////////////////////////////////////
 
     fun updateCallStatus() {
         viewModelScope.launch {
-            // TODO: Получить реальный статус из SIP
+            // TODO: Получить реальный статус из Matrix
             _callStatus.value = "ACTIVE" // временная заглушка
         }
     }
 
     fun holdCall() {
         viewModelScope.launch {
-            sipRepository.holdCall()
+            // TODO: Matrix hold call
+            println("Matrix hold call")
             updateCallStatus()
         }
     }
 
     fun unholdCall() {
         viewModelScope.launch {
-            sipRepository.unholdCall()
+            // TODO: Matrix unhold call
+            println("Matrix unhold call")
             updateCallStatus()
         }
     }
 
-
-
     fun makeCall(contactAddress: String, isVideoCall: Boolean) {
         viewModelScope.launch {
             _callState.value = CallState.Connecting(contactAddress, isVideoCall)
-            sipRepository.makeCall(contactAddress) // Реальный вызов через Linphone!
-            _callState.value = CallState.Active(contactAddress, isVideoCall)
-            startCallTimer()
+            // 🔥 MATRIX ЗВОНОК
+            matrixUseCase.startCall(contactAddress, isVideoCall)
+            // НЕ переходим сразу в Active - ждем callback от Matrix
         }
     }
 
@@ -77,40 +78,33 @@ class CallViewModel @Inject constructor(
         viewModelScope.launch {
             _callState.value = CallState.Disconnected
             _callDuration.value = 0L
-            sipRepository.endCall()
-            updateCallStatus() // ДОБАВЬ ЭТУ СТРОКУ
+            // 🔥 MATRIX END CALL
+            matrixUseCase.endCall("current_peer") // TODO: получить текущий peer
+            updateCallStatus()
         }
     }
 
     fun toggleMute() {
         viewModelScope.launch {
             _isMuted.value = !_isMuted.value
-            // TODO: Реальное управление микрофоном через SIP
-            if (_isMuted.value) {
-                sipRepository.muteMicrophone()
-            } else {
-                sipRepository.unmuteMicrophone()
-            }
+            // TODO: Реальное управление микрофоном через Matrix WebRTC
+            println("Matrix mute: ${_isMuted.value}")
         }
     }
 
     fun toggleSpeaker() {
         viewModelScope.launch {
             _isSpeakerOn.value = !_isSpeakerOn.value
-            // TODO: Реальное переключение динамика
-            sipRepository.toggleSpeaker(_isSpeakerOn.value)
+            // TODO: Реальное переключение динамика через Matrix
+            println("Matrix speaker: ${_isSpeakerOn.value}")
         }
     }
 
     fun toggleVideo() {
         viewModelScope.launch {
             _isVideoOn.value = !_isVideoOn.value
-            // TODO: Реальное управление видео через SIP
-            if (_isVideoOn.value) {
-                sipRepository.enableVideo()
-            } else {
-                sipRepository.disableVideo()
-            }
+            // TODO: Реальное управление видео через Matrix
+            println("Matrix video: ${_isVideoOn.value}")
         }
     }
 
@@ -126,9 +120,22 @@ class CallViewModel @Inject constructor(
     fun answerCall(caller: String, isVideo: Boolean) {
         viewModelScope.launch {
             _callState.value = CallState.Active(caller, isVideo)
-            // TODO: Реальный ответ на звонок через SIP
-            sipRepository.answerCall()
+            // 🔥 MATRIX ANSWER CALL
+            matrixUseCase.answerCall(caller)
             startCallTimer()
+        }
+    }
+
+    // 🔥 НОВЫЕ МЕТОДЫ ДЛЯ MATRIX
+    fun startMatrixCall(peerId: String, isVideo: Boolean) {
+        viewModelScope.launch {
+            matrixUseCase.startCall(peerId, isVideo)
+        }
+    }
+
+    fun endMatrixCall() {
+        viewModelScope.launch {
+            matrixUseCase.endCall("current_peer") // TODO
         }
     }
 }

@@ -2,76 +2,8 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "c971470f1f661f852b829923db648891",
+    "identityHash": "cad632b54b87e7bfa507b44cbacd215c",
     "entities": [
-      {
-        "tableName": "accounts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `server` TEXT NOT NULL DEFAULT '', `protocol` TEXT NOT NULL DEFAULT 'SIP', `isEnabled` INTEGER NOT NULL DEFAULT 1, `createdAt` INTEGER NOT NULL)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "username",
-            "columnName": "username",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "password",
-            "columnName": "password",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "server",
-            "columnName": "server",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "''"
-          },
-          {
-            "fieldPath": "protocol",
-            "columnName": "protocol",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "'SIP'"
-          },
-          {
-            "fieldPath": "isEnabled",
-            "columnName": "isEnabled",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "1"
-          },
-          {
-            "fieldPath": "createdAt",
-            "columnName": "createdAt",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_accounts_username",
-            "unique": true,
-            "columnNames": [
-              "username"
-            ],
-            "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_accounts_username` ON `${TABLE_NAME}` (`username`)"
-          }
-        ]
-      },
       {
         "tableName": "contacts",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `address` TEXT NOT NULL, `isOnline` INTEGER NOT NULL DEFAULT 0, `lastSeen` INTEGER NOT NULL DEFAULT 0)",
@@ -114,7 +46,9 @@
           "columnNames": [
             "id"
           ]
-        }
+        },
+        "indices": [],
+        "foreignKeys": []
       },
       {
         "tableName": "calls",
@@ -167,7 +101,8 @@
           {
             "fieldPath": "recordPath",
             "columnName": "recordPath",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -175,7 +110,9 @@
           "columnNames": [
             "id"
           ]
-        }
+        },
+        "indices": [],
+        "foreignKeys": []
       },
       {
         "tableName": "messages",
@@ -222,7 +159,8 @@
           {
             "fieldPath": "filePath",
             "columnName": "filePath",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "isDelivered",
@@ -237,12 +175,15 @@
           "columnNames": [
             "id"
           ]
-        }
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
+    "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c971470f1f661f852b829923db648891')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cad632b54b87e7bfa507b44cbacd215c')"
     ]
   }
 }

@@ -9,8 +9,6 @@ plugins {
 
 android {
 
-
-
     namespace = "com.example.aagnar"
     compileSdk = 34
 
@@ -20,17 +18,25 @@ android {
         applicationId = "com.example.aagnar"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "2.3.13"
+        versionCode = 3
+        versionName = "3.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
-            abiFilters.add("armeabi-v7a")
-            abiFilters.add("arm64-v8a")
-            abiFilters.add("x86")
-            abiFilters.add("x86_64")
+            abiFilters.add("arm64-v8a") // Только современные устройства
+            // abiFilters.add("armeabi-v7a") // Раскомментируй если нужна поддержка старых
         }
+
+//        splits {
+//            abi {
+//                isEnable = true
+//                reset()
+//                include("armeabi-v7a", "arm64-v8a") // Только эти архитектуры
+//                isUniversalApk = false
+//            }
+//        }
+
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -69,8 +75,8 @@ android {
     }
 
     buildFeatures {
-      //  viewBinding = true
-        dataBinding = true  // ЗАКОММЕНТИРОВАТЬ для решения ошибки
+       viewBinding = false
+        dataBinding = false // ЗАКОММЕНТИРОВАТЬ для решения ошибки
         // buildConfig = true
     }
 
@@ -161,7 +167,18 @@ dependencies {
 
     // implementation(libs.linphone.sdk.android)
 
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))
+        // implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))
+
+    // Matrix SDK для мессенджера
+   implementation(libs.matrix.android.sdk2)
+    // Matrix
+        // implementation(libs.matrix.sdk.android)
+// https://mvnrepository.com/artifact/org.matrix.android/matrix-android-sdk2
+  // implementation("org.matrix.android:matrix-android-sdk2:1.6.40")
+
+    // WebRTC
+   // implementation ("org.webrtc:google-webrtc:${libs.versions.webrtc.get()}")
+
 
 
  }

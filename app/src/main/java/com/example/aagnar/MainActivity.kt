@@ -1,57 +1,71 @@
-// MainActivity.kt AAGNAR v2.3.13 с Linphone
-// 2:06 28.09.2025 - старт
+// MainActivity.kt A AGNAR v3.1.0 с MATRIX - БЕЗ BINDING
 package com.example.aagnar
+
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.aagnar.databinding.ActivityMainBinding
+import androidx.lifecycle.lifecycleScope
 import com.example.aagnar.presentation.ui.call.CallFragment
 import dagger.hilt.android.AndroidEntryPoint
-import com.example.aagnar.domain.service.LinphoneService  // ДОБАВЬ ЭТУ СТРОКУ
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-
+    @Inject
+    lateinit var matrixService: com.example.aagnar.domain.service.MatrixService
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        try {
-            val linphoneService = LinphoneService(this)
-            linphoneService.initialize()
-            println("LinphoneService created successfully!")
-        } catch (e: Exception) {
-            println("LinphoneService error: ${e.message}")
-        }
-
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_main)
 
         setupToolbar()
-        showCallFragment()  // ДОБАВИТЬ ЭТУ СТРОКУ
+        showMatrixFragment()  // 🔥 ЗАМЕНИТЬ НА MATRIX
+
+        // В MainActivity.kt в onCreate
+
+        lifecycleScope.launch {  // В корутине ✅
+            delay(3000)
+
+            try {
+                val success = matrixService.login("aagnar_test_789", "Test_password123")  // suspend метод ✅
+                println("LOGIN RESULT: $success")
+            } catch (e: Exception) {
+                println("❌ LOGIN CRASH: ${e.message}")
+                e.printStackTrace()
+            }
+        }
+
     }
 
-    // ДОБАВИТЬ ЭТОТ МЕТОД
+    // ДОБАВЬ ЭТОТ МЕТОД:
+    private fun showMatrixFragment() {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, com.example.aagnar.presentation.ui.matrix.MatrixFragment())
+            .commit()
+    }
+
     private fun showCallFragment() {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, CallFragment())  // ← ИСПОЛЬЗОВАТЬ R.id.container
+            .replace(R.id.fragment_container, CallFragment())
             .commit()
     }
 
     private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)  // 🔥 findViewById
+        setSupportActionBar(toolbar)
         supportActionBar?.title = "AAGNAR"
 
         // Обработчик для ImageButton в layout (правая кнопка "i")
-        binding.toolbar.findViewById<android.widget.ImageButton>(R.id.action_about).setOnClickListener {
+        toolbar.findViewById<android.widget.ImageButton>(R.id.action_about).setOnClickListener {
             showAboutDialog()
         }
     }
 
     private fun showAboutDialog() {
         val aboutText = """
-            DeeR_Tuund(C) 2025. AAGNAR v2.3.13
+            DeeR_Tuund(C) 2025. AAGNAR v3.1.0
             
             Браузер для интернета
             

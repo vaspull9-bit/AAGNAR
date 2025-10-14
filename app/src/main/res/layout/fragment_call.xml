@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -127,12 +127,24 @@
             android:id="@+id/btnMakeCall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Call Test"
+            android:text="MakeCall"
             android:backgroundTint="#4CAF50"
             android:textColor="#FFFFFF"
             android:layout_marginBottom="16dp" />
 
+        <Button
+            android:id="@+id/btnTestEcho"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Test Echo"
+            android:layout_margin="8dp" />
 
+        <Button
+            android:id="@+id/btnTestNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Test Number"
+            android:layout_margin="8dp" />
 
         <Button
             android:id="@+id/btnEndCall"
@@ -142,5 +154,7 @@
             android:backgroundTint="#FF0000"
             android:textColor="#FFFFFF" />
 
+
+
+
     </LinearLayout>
-</layout>
