@@ -1,32 +1,31 @@
 //C:\Users\trii\AndroidStudioProjects\AAGNAR\app\src\main\java\com\example\aagnar\domain\service\MatrixService.kt
-//MatrixService.kt - все без ошибок, но не работает инициализация матрикс!!!!
-//  версия v3.1.0
+//MatrixService.kt v3.3.1 с поддержкой кастомных серверов
 
 package com.example.aagnar.domain.service
 
 import android.content.Context
+import android.net.Uri
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.matrix.android.sdk.api.auth.AuthenticationService
-import org.matrix.android.sdk.api.session.Session
-import javax.inject.Inject
-import javax.inject.Singleton
-import java.io.File
 import org.matrix.android.sdk.api.Matrix
 import org.matrix.android.sdk.api.MatrixConfiguration
+import org.matrix.android.sdk.api.auth.AuthenticationService
+import org.matrix.android.sdk.api.auth.data.HomeServerConnectionConfig
 import org.matrix.android.sdk.api.crypto.MXCryptoConfig
 import org.matrix.android.sdk.api.provider.MatrixItemDisplayNameFallbackProvider
 import org.matrix.android.sdk.api.provider.RoomDisplayNameFallbackProvider
+import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.util.MatrixItem
-
-
-
-
+import com.example.aagnar.data.repository.SettingsRepository
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 class MatrixService @Inject constructor(
-    private val context: Context
+    private val context: Context,
+    private val settingsRepository: SettingsRepository  // 🔥 ДОБАВИЛИ РЕПОЗИТОРИЙ
 ) {
     private var matrix: Matrix? = null
     private var session: Session? = null
@@ -52,6 +51,10 @@ class MatrixService @Inject constructor(
 
         try {
             println("=== MATRIX INIT 1.6.36 ===")
+
+            // 🔥 БЕРЕМ СЕРВЕР ИЗ НАСТРОЕК, А НЕ ХАРДКОД
+            val homeServerUrl = settingsRepository.getHomeServer()
+            println("🔄 Using home server: $homeServerUrl")
 
             val config = MatrixConfiguration(
                 matrixItemDisplayNameFallbackProvider = object : MatrixItemDisplayNameFallbackProvider {
@@ -82,7 +85,7 @@ class MatrixService @Inject constructor(
                 _connectionState.value = MatrixState.Connected
                 val authService = matrix?.authenticationService()
                 println("✅ AuthService: ${authService != null}")
-                println("✅ SUCCESS: Matrix 1.6.36 initialized!")
+                println("✅ SUCCESS: Matrix 1.6.36 initialized with server: $homeServerUrl")
 
                 // 🔥 ПОМЕЧАЕМ ЧТО ИНИЦИАЛИЗИРОВАЛИ
                 isInitialized = true
@@ -94,7 +97,21 @@ class MatrixService @Inject constructor(
         }
     }
 
-    // 🔥 ВСЕ МЕТОДЫ ДОЛЖНЫ БЫТЬ ВНУТРИ КЛАССА MatrixService!
+    // 🔥 ДОБАВЛЯЕМ МЕТОД ДЛЯ СМЕНЫ СЕРВЕРА
+    suspend fun updateHomeServer(url: String): Boolean {
+        return try {
+            println("=== SWITCHING TO SERVER: $url ===")
+            settingsRepository.setHomeServer(url)
+            cleanup()
+            isInitialized = false  // 🔥 СБРАСЫВАЕМ ФЛАГ ДЛЯ ПЕРЕИНИЦИАЛИЗАЦИИ
+            initialize()  // Переинициализируем с новым сервером
+            true
+        } catch (e: Exception) {
+            println("❌ SERVER SWITCH ERROR: ${e.message}")
+            false
+        }
+    }
+
     suspend fun login(username: String, password: String): Boolean {
         return try {
             println("=== REAL MATRIX LOGIN ATTEMPT ===")
@@ -102,11 +119,11 @@ class MatrixService @Inject constructor(
             val authService = matrix?.authenticationService()
             if (authService == null) return false
 
-            // 🔥 СОЗДАЕМ URI ДЛЯ HOME SERVER
-            val homeServerUri = android.net.Uri.parse("https://matrix.org")
+            // 🔥 БЕРЕМ СЕРВЕР ИЗ НАСТРОЕК
+            val homeServerUrl = settingsRepository.getHomeServer()
+            val homeServerUri = Uri.parse(homeServerUrl)
 
-            // 🔥 СОЗДАЕМ КОНФИГ С URI
-            val homeServerConfig = org.matrix.android.sdk.api.auth.data.HomeServerConnectionConfig(
+            val homeServerConfig = HomeServerConnectionConfig(
                 homeServerUri = homeServerUri
             )
 
@@ -211,8 +228,11 @@ class MatrixService @Inject constructor(
 
     fun cleanup() {
         session = null
+        matrix = null
+        isInitialized = false  // 🔥 СБРАСЫВАЕМ ФЛАГ ПРИ ОЧИСТКЕ
+        _connectionState.value = MatrixState.Disconnected
     }
-} // 🔥 ЗАКРЫВАЮЩАЯ ФИГУРНАЯ СКОБКА КЛАССА MatrixService
+}
 
 // Data classes для состояний - ВНЕ КЛАССА
 sealed class MatrixState {

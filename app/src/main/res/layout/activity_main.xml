@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -24,15 +22,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+                <!-- 🔥 ДОБАВЛЯЕМ КНОПКУ МЕНЮ -->
+                <ImageButton
+                    android:id="@+id/menu_button"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_sort_by_size"
+                    android:contentDescription="Меню"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentStart="true" />
+
                 <TextView
+                    android:id="@+id/toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="AAGNAR"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
                     android:textStyle="bold"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentStart="true" />
+                    android:layout_centerInParent="true" />
 
                 <ImageButton
                     android:id="@+id/action_about"
