@@ -1,4 +1,5 @@
 [versions]
+javaWebsocket = "1.6.0"
 kotlin = "1.9.24"  # Убедитесь, что это корректная версия
 coroutines = "1.8.1"
 coreKtx = "1.13.1"
@@ -21,16 +22,16 @@ espresso = "3.5.1"
 hilt = "2.51.1"
 activity = "1.9.0"
 documentfile = "1.0.1"
-matrix = "1.6.36"  # ДОБАВЬ ЭТУ СТРОКУ
 # webrtc = "1.0.32006"
+# googleWebrtc = "1.0.32006"
 
 [libraries]
 
-# Matrix SDK
-matrix-android-sdk2 = { module = "org.matrix.android:matrix-android-sdk2", version.ref = "matrix" }
+# WebRTC
+#google-webrtc = { module = "org.webrtc:google-webrtc", version.ref = "webrtc" }
+java-websocket = { module = "org.java-websocket:Java-WebSocket", version.ref = "javaWebsocket" }
 
-# УБРАТЬ WebRTC пока или использовать правильную:
-# webrtc-android = { module = "org.webrtc:google-webrtc", version.ref = "webrtc" }
+
 
 # Kotlin
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }

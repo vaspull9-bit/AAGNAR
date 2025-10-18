@@ -18,8 +18,8 @@ android {
         applicationId = "com.example.aagnar"
         minSdk = 24
         targetSdk = 34
-        versionCode = 3
-        versionName = "3.3.1"
+        versionCode = 4
+        versionName = "4.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -67,19 +67,19 @@ android {
     kapt {
         correctErrorTypes = true
         javacOptions {
-            option("-source", "21")
-            option("-target", "21")
+            option("-source", "17")
+            option("-target", "17")
         }
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlin {
         compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
 
@@ -174,20 +174,12 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // implementation(libs.linphone.sdk.android)
 
-        // implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))
-
-    // Matrix SDK для мессенджера
-   implementation(libs.matrix.android.sdk2)
-    // Matrix
-        // implementation(libs.matrix.sdk.android)
-// https://mvnrepository.com/artifact/org.matrix.android/matrix-android-sdk2
-  // implementation("org.matrix.android:matrix-android-sdk2:1.6.40")
+// WebSocket для signaling
+    implementation(libs.java.websocket)
 
     // WebRTC
-   // implementation ("org.webrtc:google-webrtc:${libs.versions.webrtc.get()}")
-
-
+    // implementation(libs.google.webrtc)
+   // implementation(libs.google.webrtc)
 
  }

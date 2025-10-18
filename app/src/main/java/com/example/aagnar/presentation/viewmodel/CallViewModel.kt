@@ -4,7 +4,6 @@ package com.example.aagnar.presentation.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.aagnar.domain.usecase.MatrixUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CallViewModel @Inject constructor(
     application: Application,
-    private val matrixUseCase: MatrixUseCase  // 🔥 ЗАМЕНИЛИ НА MATRIX
+
 ) : AndroidViewModel(application) {
 
     private val _callState = MutableStateFlow<CallState>(CallState.Idle)
@@ -68,8 +67,7 @@ class CallViewModel @Inject constructor(
     fun makeCall(contactAddress: String, isVideoCall: Boolean) {
         viewModelScope.launch {
             _callState.value = CallState.Connecting(contactAddress, isVideoCall)
-            // 🔥 MATRIX ЗВОНОК
-            matrixUseCase.startCall(contactAddress, isVideoCall)
+
             // НЕ переходим сразу в Active - ждем callback от Matrix
         }
     }
@@ -78,8 +76,7 @@ class CallViewModel @Inject constructor(
         viewModelScope.launch {
             _callState.value = CallState.Disconnected
             _callDuration.value = 0L
-            // 🔥 MATRIX END CALL
-            matrixUseCase.endCall("current_peer") // TODO: получить текущий peer
+
             updateCallStatus()
         }
     }
@@ -120,8 +117,7 @@ class CallViewModel @Inject constructor(
     fun answerCall(caller: String, isVideo: Boolean) {
         viewModelScope.launch {
             _callState.value = CallState.Active(caller, isVideo)
-            // 🔥 MATRIX ANSWER CALL
-            matrixUseCase.answerCall(caller)
+
             startCallTimer()
         }
     }
@@ -129,13 +125,13 @@ class CallViewModel @Inject constructor(
     // 🔥 НОВЫЕ МЕТОДЫ ДЛЯ MATRIX
     fun startMatrixCall(peerId: String, isVideo: Boolean) {
         viewModelScope.launch {
-            matrixUseCase.startCall(peerId, isVideo)
+
         }
     }
 
     fun endMatrixCall() {
         viewModelScope.launch {
-            matrixUseCase.endCall("current_peer") // TODO
+
         }
     }
 }

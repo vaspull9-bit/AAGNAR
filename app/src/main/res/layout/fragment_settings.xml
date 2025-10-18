@@ -1,60 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="16dp">
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:text="Настройки AAGNAR"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Настройки сервера Matrix"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="24dp" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Настройки P2P будут здесь"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp" />
 
-        <TextView
-            android:id="@+id/currentServerText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Текущий сервер: https://matrix.org"
-            android:textSize="16sp"
-            android:layout_marginBottom="16dp" />
-
-        <EditText
-            android:id="@+id/serverInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Введите URL Matrix сервера"
-            android:text="https://matrix.org"
-            android:layout_marginBottom="8dp" />
-
-        <Button
-            android:id="@+id/changeServerButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Сменить сервер"
-            android:layout_marginBottom="8dp" />
-
-        <Button
-            android:id="@+id/resetButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Сбросить на matrix.org"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:id="@+id/statusText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="14sp" />
-
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

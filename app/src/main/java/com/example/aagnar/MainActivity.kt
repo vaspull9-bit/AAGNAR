@@ -1,120 +1,78 @@
-// app/src/main/java/com/example/aagnar/MainActivity.kt
-// DeeR_Tuund(C) 2025. AAGNAR v3.3.1
-package com.example.aagnar
+// AAGNAR v4.0.0
+// Рекомендую: WebRTC P2P + Custom Signaling
+//Давайте создадим простую P2P систему на основе WebRTC:
+package com.example.aagnar  // ДОЛЖНО БЫТЬ ТАК
 
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import com.google.android.material.navigation.NavigationView
 import com.example.aagnar.presentation.ui.call.CallFragment
+import com.example.aagnar.presentation.ui.contacts.ContactsFragment
+import com.example.aagnar.presentation.ui.settings.SettingsFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import javax.inject.Inject
-import android.app.AlertDialog
+import com.example.aagnar.R
+import com.example.aagnar.presentation.ui.p2p.P2PFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    @Inject lateinit var matrixService: com.example.aagnar.domain.service.MatrixService
-
-    private lateinit var toolbar: androidx.appcompat.widget.Toolbar
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
     private lateinit var toolbarTitle: TextView
-    private lateinit var menuButton: ImageButton
-    private lateinit var actionAbout: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         // Находим элементы
-        toolbar = findViewById(R.id.toolbar)
+        drawerLayout = findViewById(R.id.drawerLayout)
+        navigationView = findViewById(R.id.navigationView)
         toolbarTitle = findViewById(R.id.toolbar_title)
-        menuButton = findViewById(R.id.menu_button)
-        actionAbout = findViewById(R.id.action_about)
 
-        setupToolbar()
-        showMatrixFragment()
+        // Устанавливаем название AAGNAR
+        toolbarTitle.text = "AAGNAR"
 
-        // Тест логина
-        lifecycleScope.launch {
-            delay(3000)
-            val success = matrixService.login(
-                "@aagnar_test_789:matrix.org",
-                "Test_password123"
-            )
-            println("LOGIN RESULT: $success")
-        }
-    }
-
-    private fun setupToolbar() {
-        setSupportActionBar(toolbar)
-
-        menuButton.setOnClickListener {
-            showPopupMenu(it)
+        // Кнопка меню открывает боковое меню
+        findViewById<ImageButton>(R.id.menu_button).setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
         }
 
-        actionAbout.setOnClickListener {
+        // Кнопка "О программе"
+        findViewById<ImageButton>(R.id.action_about).setOnClickListener {
             showAboutDialog()
         }
-    }
 
-    private fun showPopupMenu(anchorView: android.view.View) {
-        val popup = PopupMenu(this, anchorView)
-        popup.menuInflater.inflate(R.menu.main_popup_menu, popup.menu)
-
-        popup.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.menu_matrix -> showMatrixFragment()
-                R.id.menu_calls -> showCallFragment()
-                R.id.menu_settings -> showSettingsFragment()
+        // Навигация в боковом меню
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_p2p -> showFragment(P2PFragment(), "P2P Связь")
+                R.id.nav_calls -> showFragment(CallFragment(), "Звонки")
+                R.id.nav_contacts -> showFragment(ContactsFragment(), "Контакты")
+                R.id.nav_settings -> showFragment(SettingsFragment(), "Настройки")
             }
+            drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
 
-        popup.show()
+        // Показываем главный экран при запуске
+        showFragment(P2PFragment(), "P2P Связь")
     }
 
-    private fun showMatrixFragment() {
+    private fun showFragment(fragment: Fragment, title: String) {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, com.example.aagnar.presentation.ui.matrix.MatrixFragment())
+            .replace(R.id.fragment_container, fragment)
             .commit()
-        toolbarTitle.text = "Matrix чат"
-    }
-
-    private fun showCallFragment() {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, CallFragment())
-            .commit()
-        toolbarTitle.text = "Звонки"
-    }
-
-    private fun showSettingsFragment() {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, com.example.aagnar.presentation.ui.settings.SettingsFragment())
-            .addToBackStack("settings")
-            .commit()
-        toolbarTitle.text = "Настройки сервера"
+        toolbarTitle.text = title
     }
 
     private fun showAboutDialog() {
-        val aboutText = """
-            DeeR_Tuund(C) 2025. AAGNAR v3.3.1
-            
-            Matrix клиент с поддержкой:
-            - 💬 Чат и сообщения
-            - 📞 VoIP звонки  
-            - 🔧 Кастомные серверы
-            
-            This program is free software: you can redistribute it and/or modify
-            it under the terms of the GNU General Public License as published by
-            the Free Software Foundation, either version 3 of the License, or
-            (at your option) any later version.
-        """.trimIndent()
-
-        AlertDialog.Builder(this)
-            .setTitle("О программе")
-            .setMessage(aboutText)
+        android.app.AlertDialog.Builder(this)
+            .setTitle("AAGNAR v4.0.0")
+            .setMessage("Matrix клиент")
             .setPositiveButton("OK", null)
             .show()
     }

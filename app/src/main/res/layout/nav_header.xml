@@ -3,26 +3,25 @@
     android:layout_width="match_parent"
     android:layout_height="160dp"
     android:background="?attr/colorPrimary"
-    android:gravity="bottom"
     android:orientation="vertical"
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="AAGNAR"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/nav_header_subtitle"
-        android:layout_width="match_parent"
+        android:id="@+id/navHeaderSubtitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="v3.3.0"
+        android:text="v3.3.1"
         android:textColor="@android:color/white"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:layout_marginTop="4dp" />
 
 </LinearLayout>

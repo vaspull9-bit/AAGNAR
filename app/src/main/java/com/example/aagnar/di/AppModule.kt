@@ -2,10 +2,7 @@
 package com.example.aagnar.di
 
 import android.content.Context
-import com.example.aagnar.data.repository.MatrixRepositoryImpl
 import com.example.aagnar.data.repository.SettingsRepository
-import com.example.aagnar.domain.repository.MatrixRepository
-import com.example.aagnar.domain.service.MatrixService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,19 +20,4 @@ object AppModule {
         return SettingsRepository(context)
     }
 
-    @Provides
-    @Singleton
-    fun provideMatrixService(
-        @ApplicationContext context: Context,
-        settingsRepository: SettingsRepository
-    ): MatrixService {
-        return MatrixService(context, settingsRepository)
-    }
-
-    // 🔥 ОБНОВЛЯЕМ ПРОВАЙДЕР ДЛЯ MatrixRepository
-    @Provides
-    @Singleton
-    fun provideMatrixRepository(matrixService: MatrixService): MatrixRepository {
-        return MatrixRepositoryImpl(matrixService)
-    }
-}
+ }

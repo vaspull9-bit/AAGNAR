@@ -1,47 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="#FFFFFF">
+    <TextView
+        android:id="@+id/contactsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Экран контактов"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Contacts"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="16dp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Список контактов появится здесь"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp" />
 
-        <Button
-            android:id="@+id/btnCallEcho"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Call Echo Test"
-            android:layout_marginBottom="8dp" />
-
-        <Button
-            android:id="@+id/btnCallAlice"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Call Alice"
-            android:layout_marginBottom="8dp" />
-
-        <Button
-            android:id="@+id/btnCallBob"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Call Bob"
-            android:layout_marginBottom="16dp" />
-
-        <Button
-            android:id="@+id/btnBackToCall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Back to Call"
-            android:backgroundTint="#FF9800" />
-
-    </LinearLayout>
+</LinearLayout>
