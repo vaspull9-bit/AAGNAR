@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_p2p"
-            android:icon="@android:drawable/ic_dialog_email"
-            android:title="P2P Связь" />
-        <item
-            android:id="@+id/nav_calls"
-            android:icon="@android:drawable/ic_menu_call"
-            android:title="Звонки" />
-        <item
-            android:id="@+id/nav_contacts"
-            android:icon="@android:drawable/ic_menu_my_calendar"
-            android:title="Контакты" />
-        <item
-            android:id="@+id/nav_settings"
-            android:icon="@android:drawable/ic_menu_manage"
-            android:title="Настройки" />
-    </group>
+    <item
+        android:id="@+id/nav_p2p"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="P2P" />
+
+    <item
+        android:id="@+id/nav_calls"
+        android:icon="@android:drawable/ic_menu_call"
+        android:title="Звонки" />
+
+    <item
+        android:id="@+id/nav_contacts"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="Контакты" />
+
+    <item
+        android:id="@+id/nav_settings"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="Настройки" />
+
+    <item
+        android:id="@+id/nav_about"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:title="О программе" />
 </menu>

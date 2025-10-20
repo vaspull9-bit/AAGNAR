@@ -1,42 +1,26 @@
-
-
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.hilt)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("com.google.dagger.hilt.android")
+    id("org.jetbrains.kotlin.kapt")  // ← ДОБАВЬТЕ ЭТУ СТРОКУ
 }
 
 android {
-
     namespace = "com.example.aagnar"
     compileSdk = 34
 
     defaultConfig {
         manifestPlaceholders["appAuthRedirectScheme"] = "com.example.aagnar"
-
         applicationId = "com.example.aagnar"
         minSdk = 24
         targetSdk = 34
         versionCode = 4
-        versionName = "4.0.0"
-
+        versionName = "4.0.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
-            abiFilters.add("arm64-v8a") // Только современные устройства
-            // abiFilters.add("armeabi-v7a") // Раскомментируй если нужна поддержка старых
+            abiFilters.add("arm64-v8a")
         }
-
-//        splits {
-//            abi {
-//                isEnable = true
-//                reset()
-//                include("armeabi-v7a", "arm64-v8a") // Только эти архитектуры
-//                isUniversalApk = false
-//            }
-//        }
-
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -63,30 +47,18 @@ android {
         }
     }
 
-
-    kapt {
-        correctErrorTypes = true
-        javacOptions {
-            option("-source", "17")
-            option("-target", "17")
-        }
-    }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-        }
+    kotlinOptions {
+        jvmTarget = "17"
     }
 
     buildFeatures {
-       viewBinding = false
-        dataBinding = false // ЗАКОММЕНТИРОВАТЬ для решения ошибки
-        // buildConfig = true
+        viewBinding = false
+        dataBinding = false
     }
 
     packaging {
@@ -102,16 +74,12 @@ android {
     }
 }
 
-
-kapt {
-    correctErrorTypes = true
-}
-
+// kapt конфигурация (один раз!)
+//kapt {
+//    correctErrorTypes = true
+//}
 
 dependencies {
-
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
-
     // Kotlin
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
@@ -136,10 +104,11 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
-    // Camera & Media
-    implementation(libs.androidx.camera.camera2)
-    implementation(libs.androidx.camera.lifecycle)
-    implementation(libs.androidx.camera.view)
+    // Camera
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2.v123)
+    implementation(libs.androidx.camera.lifecycle.v123)
+    implementation(libs.androidx.camera.view.v123)
     implementation(libs.androidx.media)
 
     // Network
@@ -150,13 +119,12 @@ dependencies {
     // Database
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-       kapt(libs.androidx.room.compiler)  // Используем kapt вместо KSP
+    kapt(libs.androidx.room.compiler)
 
     // Security
     implementation(libs.androidx.security.crypto)
 
-
-     // WorkManager
+    // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
 
     // Preference
@@ -165,21 +133,19 @@ dependencies {
     // Document File
     implementation(libs.androidx.documentfile)
 
-    // HILT
+    // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+
+    // WebSocket
+    implementation(libs.java.websocket)
+
+    // QR Code
+    implementation(libs.core)
+    implementation(libs.zxing.android.embedded)
 
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-
-// WebSocket для signaling
-    implementation(libs.java.websocket)
-
-    // WebRTC
-    // implementation(libs.google.webrtc)
-   // implementation(libs.google.webrtc)
-
- }
+}

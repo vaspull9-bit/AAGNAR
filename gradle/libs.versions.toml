@@ -1,6 +1,16 @@
 [versions]
+# Убрать дубликаты - оставить только ОДНУ версию для каждого
+android-gradle-plugin = "8.1.0"
+kotlin = "1.9.0"  # ← ОДНА версия Kotlin
+hilt = "2.51.1"   # ← ОДНА версия Hilt
+
+# Версии библиотек
+cameraCamera2 = "1.2.3"
+cameraCore = "1.5.1"
+cameraLifecycle = "1.2.3"
+cameraView = "1.2.3"
+core = "3.5.1"
 javaWebsocket = "1.6.0"
-kotlin = "1.9.24"  # Убедитесь, что это корректная версия
 coroutines = "1.8.1"
 coreKtx = "1.13.1"
 appcompat = "1.6.1"
@@ -19,19 +29,39 @@ preference = "1.2.1"
 junit = "4.13.2"
 extJunit = "1.1.5"
 espresso = "3.5.1"
-hilt = "2.51.1"
 activity = "1.9.0"
 documentfile = "1.0.1"
-# webrtc = "1.0.32006"
-# googleWebrtc = "1.0.32006"
+zxingAndroidEmbedded = "4.3.0"
+swiperefresh = "1.1.0"
+recyclerview = "1.3.2"
+cardview = "1.0.0"
+circleimageview = "3.1.0"
+
+[plugins]
+# ПЛАГИНЫ - исправлено
+android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }  # ← ДОБАВИТЬ ЭТУ СТРОКУ
 
 [libraries]
+# UI Components
+androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefresh" }
+androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
+androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
+circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
 
-# WebRTC
-#google-webrtc = { module = "org.webrtc:google-webrtc", version.ref = "webrtc" }
+# Camera
+androidx-camera-camera2-v123 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
+androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCore" }
+androidx-camera-lifecycle-v123 = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraLifecycle" }
+androidx-camera-view-v123 = { module = "androidx.camera:camera-view", version.ref = "cameraView" }
+
+# QR Code
+core = { module = "com.google.zxing:core", version.ref = "core" }
+zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroidEmbedded" }
+
+# WebSocket
 java-websocket = { module = "org.java-websocket:Java-WebSocket", version.ref = "javaWebsocket" }
-
-
 
 # Kotlin
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -45,7 +75,6 @@ androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version = "1.7.0" }
 
 # UI
-
 material = { module = "com.google.android.material:material", version.ref = "material" }
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 
@@ -58,15 +87,10 @@ androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtim
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigation" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation" }
 
-# Camera & Media
-
-androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camera" }
-androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camera" }
-androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "camera" }
+# Media
 androidx-media = { module = "androidx.media:media", version.ref = "media" }
 
 # Network
-
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
@@ -85,6 +109,9 @@ androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version
 # Preference
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preference" }
 
+# Document File
+androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
+
 # Hilt
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
@@ -93,10 +120,3 @@ hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hil
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "extJunit" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
-androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
-
-[plugins]
-android-application = { id = "com.android.application", version = "8.3.2" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt" }  # УБРАТЬ версию отсюда
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }

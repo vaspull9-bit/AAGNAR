@@ -2,4 +2,43 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Primary Colors -->
+    <color name="colorPrimary">#2196F3</color>
+    <color name="colorPrimaryDark">#1976D2</color>
+    <color name="colorAccent">#03A9F4</color>
+
+    <!-- Background & Surface -->
+    <color name="background">#FAFAFA</color>
+    <color name="surface">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+
+    <!-- Status Colors -->
+    <color name="status_online">#4CAF50</color>
+    <color name="status_away">#FF9800</color>
+    <color name="status_offline">#9E9E9E</color>
+    <color name="status_unregistered">#F44336</color>
+    <color name="status_busy">#F44336</color>
+
+    <!-- Avatar Colors -->
+    <color name="avatar_blue">#2196F3</color>
+    <color name="avatar_green">#4CAF50</color>
+    <color name="avatar_orange">#FF9800</color>
+    <color name="avatar_purple">#9C27B0</color>
+    <color name="avatar_red">#F44336</color>
+    <color name="avatar_teal">#009688</color>
+
+    <!-- Call Colors -->
+    <color name="call_incoming">#4CAF50</color>
+    <color name="call_outgoing">#2196F3</color>
+    <color name="call_missed">#F44336</color>
+
+    <!-- UI Colors -->
+    <color name="divider">#E0E0E0</color>
+    <color name="shadow">#1E000000</color>
+
+
 </resources>

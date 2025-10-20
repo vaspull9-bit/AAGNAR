@@ -1,79 +1,140 @@
-// AAGNAR v4.0.0
-// Рекомендую: WebRTC P2P + Custom Signaling
-//Давайте создадим простую P2P систему на основе WebRTC:
-package com.example.aagnar  // ДОЛЖНО БЫТЬ ТАК
+// AAGNAR v4.0.5
 
+
+package com.example.aagnar
+
+import android.content.Intent
 import android.os.Bundle
-import android.widget.*
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import com.google.android.material.navigation.NavigationView
-import com.example.aagnar.presentation.ui.call.CallFragment
+import com.example.aagnar.databinding.ActivityMainBinding
+import com.example.aagnar.presentation.adapter.MainPagerAdapter
+import com.example.aagnar.presentation.ui.chats.ChatsFragment
 import com.example.aagnar.presentation.ui.contacts.ContactsFragment
+import com.example.aagnar.presentation.ui.calls.CallsFragment
 import com.example.aagnar.presentation.ui.settings.SettingsFragment
+import com.google.android.material.navigation.NavigationView
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
-import com.example.aagnar.R
-import com.example.aagnar.presentation.ui.p2p.P2PFragment
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
+    private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
-    private lateinit var toolbarTitle: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        // Находим элементы
-        drawerLayout = findViewById(R.id.drawerLayout)
-        navigationView = findViewById(R.id.navigationView)
-        toolbarTitle = findViewById(R.id.toolbar_title)
+        // Проверяем зарегистрирован ли пользователь
+        val prefs = getSharedPreferences("user", MODE_PRIVATE)
+        if (!prefs.getBoolean("registered", false)) {
+            startActivity(Intent(this, RegistrationActivity::class.java))
+            finish()
+            return
+        }
 
-        // Устанавливаем название AAGNAR
-        toolbarTitle.text = "AAGNAR"
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Кнопка меню открывает боковое меню
-        findViewById<ImageButton>(R.id.menu_button).setOnClickListener {
+        initViews()
+        setupViewPager()
+        setupNavigation()
+    }
+
+    private fun initViews() {
+        drawerLayout = binding.drawerLayout
+        navigationView = binding.navigationView
+
+        // Настройка toolbar
+        setSupportActionBar(binding.toolbar)
+    }
+
+    private fun setupViewPager() {
+        val pagerAdapter = MainPagerAdapter(this)
+        binding.viewPager.adapter = pagerAdapter
+
+        // Связываем TabLayout с ViewPager2
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> "Чаты"
+                1 -> "Контакты"
+                2 -> "Звонки"
+                else -> "Чаты"
+            }
+        }.attach()
+
+        // Обработчики кнопок в toolbar
+        binding.menuButton.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
 
-        // Кнопка "О программе"
-        findViewById<ImageButton>(R.id.action_about).setOnClickListener {
-            showAboutDialog()
+        binding.searchButton.setOnClickListener {
+            // TODO: Открыть поиск
+            showMessage("Поиск")
         }
 
-        // Навигация в боковом меню
-        navigationView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_p2p -> showFragment(P2PFragment(), "P2P Связь")
-                R.id.nav_calls -> showFragment(CallFragment(), "Звонки")
-                R.id.nav_contacts -> showFragment(ContactsFragment(), "Контакты")
-                R.id.nav_settings -> showFragment(SettingsFragment(), "Настройки")
-            }
-            drawerLayout.closeDrawer(GravityCompat.START)
-            true
+        binding.addContactButton.setOnClickListener {
+            // TODO: Открыть добавление контакта
+            showMessage("Добавить контакт")
         }
-
-        // Показываем главный экран при запуске
-        showFragment(P2PFragment(), "P2P Связь")
     }
 
-    private fun showFragment(fragment: Fragment, title: String) {
+    private fun setupNavigation() {
+        navigationView.setNavigationItemSelectedListener(this)
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_settings -> showFragment(SettingsFragment())
+            R.id.nav_profile -> showProfile()
+            R.id.nav_about -> showAbout()
+            R.id.nav_logout -> logout()
+        }
+        drawerLayout.closeDrawer(GravityCompat.START)
+        return true
+    }
+
+    private fun showFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
             .commit()
-        toolbarTitle.text = title
     }
 
-    private fun showAboutDialog() {
+    private fun showProfile() {
+        // TODO: Открыть профиль пользователя
+        showMessage("Профиль")
+    }
+
+    private fun showAbout() {
         android.app.AlertDialog.Builder(this)
-            .setTitle("AAGNAR v4.0.0")
-            .setMessage("Matrix клиент")
+            .setTitle("AAGNAR v4.0.5")
+            .setMessage("P2P клиент, DeeR Tuund (C) 2025\n\nОсновано на JAMI")
             .setPositiveButton("OK", null)
             .show()
+    }
+
+    private fun logout() {
+        val prefs = getSharedPreferences("user", MODE_PRIVATE)
+        prefs.edit().clear().apply()
+        startActivity(Intent(this, RegistrationActivity::class.java))
+        finish()
+    }
+
+    private fun showMessage(message: String) {
+        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 }

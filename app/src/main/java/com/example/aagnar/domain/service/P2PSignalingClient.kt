@@ -1,9 +1,9 @@
 package com.example.aagnar.domain.service
 
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.io.IOException
 import java.io.PrintWriter
 import java.net.Socket
 import javax.inject.Inject
@@ -15,6 +15,8 @@ class P2PSignalingClient @Inject constructor() {
     private var writer: PrintWriter? = null
     private var reader: BufferedReader? = null
 
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
     private val _connectionState = MutableStateFlow<String>("Disconnected")
     val connectionState = _connectionState
 
@@ -22,54 +24,93 @@ class P2PSignalingClient @Inject constructor() {
     val messages = _messages
 
     fun connectToServer(serverIp: String = "192.168.88.240") {
-        try {
-            _connectionState.value = "Connecting..."
-            _messages.value += "🔄 Connecting to $serverIp:8887"
+        // Если уже подключены - сначала отключаемся
+        if (socket?.isConnected == true) {
+            disconnect()
+        }
 
-            socket = Socket(serverIp, 8887)
-            writer = PrintWriter(socket!!.getOutputStream(), true)
-            reader = BufferedReader(InputStreamReader(socket!!.getInputStream()))
+        scope.launch {
+            try {
+                withContext(Dispatchers.Main) {
+                    _connectionState.value = "Connecting..."
+                    _messages.value += "🔄 Connecting to $serverIp:8887"
+                }
 
-            _connectionState.value = "Connected"
-            _messages.value += "✅ TCP connected to server"
+                socket = Socket()
+                withTimeout(10000) {
+                    socket!!.connect(java.net.InetSocketAddress(serverIp, 8887), 10000)
+                }
 
-            // Читаем сообщения от сервера в отдельном потоке
-            Thread {
-                try {
-                    var message: String?
-                    while (reader?.readLine().also { message = it } != null) {
+                writer = PrintWriter(socket!!.getOutputStream(), true)
+                reader = BufferedReader(InputStreamReader(socket!!.getInputStream()))
+
+                withContext(Dispatchers.Main) {
+                    _connectionState.value = "Connected"
+                    _messages.value += "✅ TCP connected to server"
+                }
+
+                startReadingMessages()
+
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _connectionState.value = "Error"
+                    _messages.value += "❌ Connection failed: ${e.message}"
+                }
+            }
+        }
+    }
+
+    private fun startReadingMessages() {
+        scope.launch {
+            try {
+                var message: String?
+                while (reader?.readLine().also { message = it } != null) {
+                    withContext(Dispatchers.Main) {
                         _messages.value += "📨 Server: $message"
                     }
-                } catch (e: IOException) {
-                    _messages.value += "❌ Read error: ${e.message}"
-                    disconnect()
                 }
-            }.start()
-
-        } catch (e: Exception) {
-            _connectionState.value = "Error"
-            _messages.value += "❌ Connection failed: ${e.message}"
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _messages.value += "❌ Read error: ${e.message}"
+                }
+                disconnect()
+            }
         }
     }
 
     fun sendMessage(text: String) {
-        try {
-            writer?.println("""{"type":"message","text":"$text","from":"android"}""")
-            _messages.value += "📤 Sent: $text"
-        } catch (e: Exception) {
-            _messages.value += "❌ Send failed: ${e.message}"
+        scope.launch {
+            try {
+                writer?.println("""{"type":"message","text":"$text","from":"android"}""")
+                withContext(Dispatchers.Main) {
+                    _messages.value += "📤 Sent: $text"
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _messages.value += "❌ Send failed: ${e.message}"
+                }
+            }
         }
     }
 
     fun disconnect() {
-        try {
-            writer?.close()
-            reader?.close()
-            socket?.close()
-        } catch (e: Exception) {
-            // Ignore
+        scope.launch {
+            try {
+                writer?.close()
+                reader?.close()
+                socket?.close()
+            } catch (e: Exception) {
+                // Ignore
+            }
+            withContext(Dispatchers.Main) {
+                _connectionState.value = "Disconnected"
+                _messages.value += "🔌 Disconnected"
+            }
         }
-        _connectionState.value = "Disconnected"
-        _messages.value += "🔌 Disconnected"
+    }
+
+    fun cleanup() {
+        scope.cancel()
+        disconnect()
     }
 }
