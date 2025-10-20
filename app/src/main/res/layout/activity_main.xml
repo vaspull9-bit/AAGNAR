@@ -23,35 +23,28 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <ImageButton
-                    android:id="@+id/menu_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="☰"
-                    android:textSize="20sp"
-                    android:textColor="@android:color/white"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentStart="true" />
-
+                <!-- НАЗВАНИЕ СЛЕВА -->
                 <TextView
                     android:id="@+id/toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    android:text="Matrix чат" />
-
-                <ImageButton
-                    android:id="@+id/action_about"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ⓘ"
-                    android:textSize="18sp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentStart="true"
+                    android:text="AAGNAR"
                     android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <!-- КНОПКА МЕНЮ СПРАВА - ИКОНКА -->
+                <ImageButton
+                    android:id="@+id/menu_button"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_menu"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:layout_centerVertical="true"
-                    android:layout_alignParentEnd="true" />
+                    android:layout_alignParentEnd="true"
+                    android:contentDescription="Меню" />
 
             </RelativeLayout>
 

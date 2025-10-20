@@ -1,8 +1,10 @@
-// AAGNAR v4.0.0
-// Рекомендую: WebRTC P2P + Custom Signaling
-//Давайте создадим простую P2P систему на основе WebRTC:
-package com.example.aagnar  // ДОЛЖНО БЫТЬ ТАК
 
+// AAGNAR v4.0.3
+//  WebRTC P2P + Custom Signaling
+
+package com.example.aagnar
+
+import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -15,64 +17,66 @@ import com.example.aagnar.presentation.ui.contacts.ContactsFragment
 import com.example.aagnar.presentation.ui.settings.SettingsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import com.example.aagnar.R
-import com.example.aagnar.presentation.ui.p2p.P2PFragment
+import com.example.aagnar.presentation.ui.p2p.P2PSimpleFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
-    private lateinit var toolbarTitle: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Проверяем зарегистрирован ли пользователь
+        val prefs = getSharedPreferences("user", MODE_PRIVATE)
+        if (!prefs.getBoolean("registered", false)) {
+            startActivity(Intent(this, RegistrationActivity::class.java))
+            finish()
+            return
+        }
+
+
         setContentView(R.layout.activity_main)
+
+        showFragment(ContactsFragment())
 
         // Находим элементы
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.navigationView)
-        toolbarTitle = findViewById(R.id.toolbar_title)
 
-        // Устанавливаем название AAGNAR
-        toolbarTitle.text = "AAGNAR"
-
-        // Кнопка меню открывает боковое меню
+        // Кнопка меню справа открывает боковое меню
         findViewById<ImageButton>(R.id.menu_button).setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
-        }
-
-        // Кнопка "О программе"
-        findViewById<ImageButton>(R.id.action_about).setOnClickListener {
-            showAboutDialog()
         }
 
         // Навигация в боковом меню
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_p2p -> showFragment(P2PFragment(), "P2P Связь")
-                R.id.nav_calls -> showFragment(CallFragment(), "Звонки")
-                R.id.nav_contacts -> showFragment(ContactsFragment(), "Контакты")
-                R.id.nav_settings -> showFragment(SettingsFragment(), "Настройки")
+                R.id.nav_p2p -> showFragment(P2PSimpleFragment())
+                R.id.nav_calls -> showFragment(CallFragment())
+                R.id.nav_contacts -> showFragment(ContactsFragment())
+                R.id.nav_settings -> showFragment(SettingsFragment())
+                R.id.nav_about -> showAboutDialog()
             }
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
 
         // Показываем главный экран при запуске
-        showFragment(P2PFragment(), "P2P Связь")
+        showFragment(P2PSimpleFragment())
     }
 
-    private fun showFragment(fragment: Fragment, title: String) {
+    private fun showFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()
-        toolbarTitle.text = title
     }
 
     private fun showAboutDialog() {
         android.app.AlertDialog.Builder(this)
-            .setTitle("AAGNAR v4.0.0")
-            .setMessage("Matrix клиент")
+            .setTitle("AAGNAR v4.0.3")
+            .setMessage("P2P клиент, DeeR Tuund (C) 2025")
             .setPositiveButton("OK", null)
             .show()
     }

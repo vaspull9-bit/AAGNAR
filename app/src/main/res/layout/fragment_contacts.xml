@@ -2,23 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/contactsText"
-        android:layout_width="wrap_content"
+    <!-- Строка поиска -->
+    <EditText
+        android:id="@+id/searchInput"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Экран контактов"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:hint="Поиск по логину"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:padding="16dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Список контактов появится здесь"
-        android:textSize="16sp"
-        android:layout_marginTop="16dp" />
+    <!-- Список контактов -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/contactsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
 </LinearLayout>

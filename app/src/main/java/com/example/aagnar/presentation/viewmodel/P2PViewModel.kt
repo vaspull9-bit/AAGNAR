@@ -19,11 +19,20 @@ class P2PViewModel @Inject constructor(
         p2pClient.connectToServer("192.168.88.240")
     }
 
+    fun connectToServer(ip: String) {
+        p2pClient.connectToServer(ip)
+    }
+
     fun sendMessage(message: String) {
         p2pClient.sendMessage(message)
     }
 
     fun disconnect() {
         p2pClient.disconnect()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        p2pClient.cleanup()
     }
 }
