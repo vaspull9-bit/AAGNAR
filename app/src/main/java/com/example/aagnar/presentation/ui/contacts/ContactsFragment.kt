@@ -71,4 +71,12 @@ class ContactsFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun openChat(contactName: String) {
+        val intent = Intent(requireContext(), ChatActivity::class.java).apply {
+            putExtra("contact_name", contactName)
+        }
+        startActivity(intent)
+    }
+
 }

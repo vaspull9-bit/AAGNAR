@@ -40,5 +40,12 @@
     <color name="divider">#E0E0E0</color>
     <color name="shadow">#1E000000</color>
 
+    <!-- Chat Colors -->
+    <color name="chat_background">#F5F5F5</color>
+    <color name="bubble_sent">#2196F3</color>
+    <color name="bubble_sent_text">#FFFFFF</color>
+    <color name="bubble_received">#FFFFFF</color>
+    <color name="bubble_received_text">#212121</color>
+
 
 </resources>

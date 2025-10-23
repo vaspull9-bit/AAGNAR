@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="1dp">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <!-- Аватар -->
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/contactAvatar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_person"
+            app:civ_border_width="1dp"
+            app:civ_border_color="@color/divider" />
+
+        <!-- Имя пользователя -->
+        <TextView
+            android:id="@+id/contactName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/contactAvatar"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="4dp"
+            android:text="Username"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <!-- Кнопка удаления -->
+        <ImageButton
+            android:id="@+id/removeButton"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignTop="@id/contactAvatar"
+            android:layout_alignEnd="@id/contactAvatar"
+            android:src="@drawable/ic_close"
+            android:background="@drawable/circle_background_red"
+            android:scaleType="centerInside"
+            android:padding="2dp"
+            android:contentDescription="Удалить" />
+
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Информация о группе -->
+    <item
+        android:id="@+id/action_group_info"
+        android:icon="@drawable/ic_info"
+        android:title="Информация о группе"
+        app:showAsAction="ifRoom" />
+
+    <!-- Добавить участников -->
+    <item
+        android:id="@+id/action_add_members"
+        android:icon="@drawable/ic_person_add"
+        android:title="Добавить участников"
+        app:showAsAction="ifRoom" />
+
+    <!-- Покинуть группу -->
+    <item
+        android:id="@+id/action_leave_group"
+        android:icon="@drawable/ic_exit"
+        android:title="Покинуть группу"
+        app:showAsAction="never" />
+
+    <!-- Настройки группы -->
+    <item
+        android:id="@+id/action_group_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Настройки"
+        app:showAsAction="never" />
+
+</menu>

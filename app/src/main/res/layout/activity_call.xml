@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <!-- Удаленное видео (полный экран) -->
+    <org.webrtc.SurfaceViewRenderer
+        android:id="@+id/remoteVideoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Локальное видео (маленькое окошко) -->
+    <org.webrtc.SurfaceViewRenderer
+        android:id="@+id/localVideoView"
+        android:layout_width="120dp"
+        android:layout_height="160dp"
+        android:layout_margin="16dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <!-- Информация о звонке -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/contactName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Contact Name"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/callStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Calling..."
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <!-- Панель управления для активного звонка -->
+    <LinearLayout
+        android:id="@+id/activeCallLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="24dp">
+
+        <ImageButton
+            android:id="@+id/muteAudioButton"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/call_button_background"
+            android:src="@drawable/ic_mic_on"
+            android:contentDescription="Выключить звук" />
+
+        <ImageButton
+            android:id="@+id/endCallButton"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginHorizontal="32dp"
+            android:background="@drawable/call_end_button_background"
+            android:src="@drawable/ic_call_end"
+            android:contentDescription="Завершить звонок" />
+
+        <ImageButton
+            android:id="@+id/muteVideoButton"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/call_button_background"
+            android:src="@drawable/ic_videocam_on"
+            android:contentDescription="Выключить видео" />
+
+        <ImageButton
+            android:id="@+id/switchCameraButton"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/call_button_background"
+            android:src="@drawable/ic_switch_camera"
+            android:contentDescription="Переключить камеру" />
+
+    </LinearLayout>
+
+    <!-- Панель для входящего звонка -->
+    <LinearLayout
+        android:id="@+id/incomingCallLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="24dp"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/rejectCallButton"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="32dp"
+            android:background="@drawable/call_reject_button_background"
+            android:src="@drawable/ic_call_end"
+            android:contentDescription="Отклонить" />
+
+        <ImageButton
+            android:id="@+id/acceptCallButton"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@drawable/call_accept_button_background"
+            android:src="@drawable/ic_call"
+            android:contentDescription="Принять" />
+
+    </LinearLayout>
+
+</RelativeLayout>

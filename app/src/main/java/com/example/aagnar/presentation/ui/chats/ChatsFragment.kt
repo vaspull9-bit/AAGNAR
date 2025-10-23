@@ -73,9 +73,11 @@ class ChatsFragment : Fragment() {
         binding.emptyState.visibility = if (chats.isEmpty()) View.VISIBLE else View.GONE
     }
 
-    private fun openChat(chat: Chat) {
-        // TODO: Открыть экран чата
-        showMessage("Открыть чат с ${chat.contactName}")
+    private fun openChat(contactName: String) {
+        val intent = Intent(requireContext(), ChatActivity::class.java).apply {
+            putExtra("contact_name", contactName)
+        }
+        startActivity(intent)
     }
 
     private fun showMessage(message: String) {
@@ -86,4 +88,17 @@ class ChatsFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    // Добавляем вкладку для групп
+    private fun setupViewPager() {
+        val fragments = listOf(
+            ChatsTabFragment(), // Личные чаты
+            GroupsTabFragment() // Групповые чаты
+        )
+
+        val titles = listOf("Чаты", "Группы")
+
+        // Настройка ViewPager с табами
+    }
+
 }

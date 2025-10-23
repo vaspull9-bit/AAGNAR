@@ -7,31 +7,46 @@ import androidx.room.TypeConverters
 import com.example.aagnar.data.local.converters.MessageTypeConverter
 import com.example.aagnar.domain.model.MessageType
 
-@Entity(tableName = "messages")
-@TypeConverters(MessageTypeConverter::class)
+@Entity(
+    tableName = "message",
+    indices = [
+        Index(value = ["contactName", "timestamp"], unique = false),
+        Index(value = ["timestamp"], unique = false),
+        Index(value = ["isDelivered"], unique = false)
+    ]
+)
 data class MessageEntity(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    val id: Long = 0,
+    @PrimaryKey
+    val id: String,
 
-    @ColumnInfo(name = "contactId")
-    val contactId: Long,
+    @ColumnInfo(name = "contactName")
+    val contactName: String,
 
     @ColumnInfo(name = "content")
     val content: String,
 
-    @ColumnInfo(name = "timestamp")
-    val timestamp: Long,
+    @ColumnInfo(name = "timestamp", index = true)
+    val timestamp: Date,
 
-    @ColumnInfo(name = "isOutgoing", defaultValue = "0")
-    val isOutgoing: Boolean = false,
+    @ColumnInfo(name = "isDelivered", index = true)
+    val isDelivered: Boolean = false,
 
-    @ColumnInfo(name = "type", defaultValue = "TEXT")
-    val type: MessageType = MessageType.TEXT,
+    @ColumnInfo(name = "isRead")
+    val isRead: Boolean = false,
 
-    @ColumnInfo(name = "filePath")
-    val filePath: String? = null,
-
-    @ColumnInfo(name = "isDelivered", defaultValue = "0")
-    val isDelivered: Boolean = false
-)
+    @ColumnInfo(name = "isEncrypted")
+    val isEncrypted: Boolean = false
+) {
+    fun toDomain(): Message {
+        return Message(
+            id = id,
+            contactName = contactName,
+            content = content,
+            timestamp = timestamp,
+            type = MessageType.RECEIVED, // Определяется в бизнес-логике
+            isDelivered = isDelivered,
+            isRead = isRead,
+            isEncrypted = isEncrypted
+        )
+    }
+}

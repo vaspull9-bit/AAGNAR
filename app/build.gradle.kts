@@ -15,7 +15,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 4
-        versionName = "4.0.5"
+        versionName = "4.0.6"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -40,8 +40,12 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Включаем сжатие ресурсов
+            isCrunchPngs = true
         }
         getByName("debug") {
+            isMinifyEnabled = false
+            isShrinkResources = false
             isDebuggable = true
             applicationIdSuffix = ".debug"
         }
@@ -50,11 +54,17 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+
+        // Включаем десериализацию
+        isCoreLibraryDesugaringEnabled = true
+
     }
 
     kotlinOptions {
         jvmTarget = "17"
     }
+
+
 
     buildFeatures {
         viewBinding = false
@@ -123,6 +133,7 @@ dependencies {
 
     // Security
     implementation(libs.androidx.security.crypto)
+    //  implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
@@ -139,6 +150,7 @@ dependencies {
 
     // WebSocket
     implementation(libs.java.websocket)
+        // implementation("org.java-websocket:Java-WebSocket:1.5.3")
 
     // QR Code
     implementation(libs.core)
@@ -148,4 +160,14 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // JSON
+    implementation("org.json:json:20231013")
+
+    // WebRTC
+    implementation(libs.webrtc.android)
+
+    // Permissions
+    implementation("com.github.florent37:runtime-permission-kotlin:1.1.2")
+
 }
