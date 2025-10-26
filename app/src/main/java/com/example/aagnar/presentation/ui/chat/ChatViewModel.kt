@@ -13,15 +13,18 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
-
+import com.example.aagnar.domain.service.EncryptionService
+import com.example.aagnar.domain.service.FileTransferService
+import com.example.aagnar.domain.model.VoiceMessageInfo
+import com.example.aagnar.domain.model.FileInfo
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val messageRepository: MessageRepository,
-    private val webSocketRepository: WebSocketRepository
+    private val webSocketRepository: WebSocketRepository,
 // Добавляем в конструктор
-    private val encryptionService: EncryptionService
+    private val encryptionService: EncryptionService,
     // Добавляем в конструктор
-    private val fileTransferService: FileTransferService
+    private val fileTransferService: FileTransferService,
 // Добавляем в конструктор
     private val audioViewModel: AudioViewModel
 
@@ -249,8 +252,11 @@ class ChatViewModel @Inject constructor(
     fun markMessageAsRead(messageId: String) {
         viewModelScope.launch {
             messageRepository.markMessageAsRead(messageId)
+
+
             if (currentContact.isNotEmpty()) {
                 webSocketRepository.sendReadReceipt(currentContact, messageId)
+
             }
         }
     }
@@ -265,14 +271,18 @@ class ChatViewModel @Inject constructor(
 
         viewModelScope.launch {
             // Наблюдаем за входящими сообщениями
-            webSocketRepository.getIncomingMessages()?.collect { newMessages ->
+            webSocketRepository.observeMessages()?.collect { newMessages ->
+
                 if (newMessages.isNotEmpty()) {
                     val relevantMessages = newMessages.filter { it.contactName == currentContact }
+
                     if (relevantMessages.isNotEmpty()) {
                         // Сохраняем в базу данных
                         relevantMessages.forEach { message ->
                             viewModelScope.launch {
-                                messageRepository.insertMessage(message)
+                                messageRepository.createDirectMessage(message)
+
+
                             }
                         }
 
@@ -294,5 +304,6 @@ class ChatViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         webSocketRepository.disconnect()
-    }
+
+            }
 }

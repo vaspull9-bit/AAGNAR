@@ -1,98 +1,90 @@
-object ImageLoader {
+package com.example.aagnar.util
 
-    private const val MEMORY_CACHE_SIZE = (Runtime.getRuntime().maxMemory() / 8).toInt()
-    private const val DISK_CACHE_SIZE = 50 * 1024 * 1024 // 50MB
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.widget.ImageView
+import com.example.aagnar.R
+import kotlinx.coroutines.*
+import java.net.URL
+import javax.inject.Inject
+import javax.inject.Singleton
 
-    private val memoryCache = LruCache<String, Bitmap>(MEMORY_CACHE_SIZE)
+@Singleton
+class ImageLoader @Inject constructor() {
 
-    private val diskCache: DiskLruCache by lazy {
-        val cacheDir = File(Application.context.cacheDir, "images")
-        DiskLruCache.open(cacheDir, 1, 1, DISK_CACHE_SIZE)
-    }
+    private val memoryCache = LruCache<String, Bitmap>((Runtime.getRuntime().maxMemory() / 8).toInt())
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    // Оптимизация: предзагрузка и кэширование
-    suspend fun loadImage(url: String, target: ImageView, placeholder: Int = R.drawable.ic_placeholder) {
+    suspend fun loadImage(url: String, target: ImageView, placeholder: Int = R.drawable.ic_profile) {
         target.setImageResource(placeholder)
 
-        // Проверяем кэш в памяти
         memoryCache[url]?.let { bitmap ->
             target.setImageBitmap(bitmap)
             return
         }
 
-        // Проверяем дисковый кэш
-        withContext(Dispatchers.IO) {
-            try {
-                val snapshot = diskCache.get(url)
-                snapshot?.getInputStream(0)?.use { input ->
-                    val bitmap = BitmapFactory.decodeStream(input)
-                    bitmap?.let {
-                        // Сохраняем в память
-                        memoryCache.put(url, it)
-
-                        withContext(Dispatchers.Main) {
-                            target.setImageBitmap(it)
-                        }
-                    }
-                } ?: loadFromNetwork(url, target)
-            } catch (e: Exception) {
-                loadFromNetwork(url, target)
-            }
-        }
-    }
-
-    private suspend fun loadFromNetwork(url: String, target: ImageView) {
         withContext(Dispatchers.IO) {
             try {
                 val bitmap = downloadBitmap(url)
                 bitmap?.let {
-                    // Сохраняем в кэши
                     memoryCache.put(url, it)
-                    saveToDiskCache(url, it)
-
                     withContext(Dispatchers.Main) {
                         target.setImageBitmap(it)
                     }
                 }
             } catch (e: Exception) {
-                Log.e("ImageLoader", "Failed to load image: ${e.message}")
+                // Ошибка загрузки - остаётся placeholder
             }
         }
     }
 
     private fun downloadBitmap(url: String): Bitmap? {
         return try {
-            val connection = URL(url).openConnection() as HttpURLConnection
+            val connection = URL(url).openConnection()
             connection.connect()
-
-            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-                val input = connection.inputStream
-                BitmapFactory.decodeStream(input)
-            } else {
-                null
-            }
+            val input = connection.getInputStream()
+            BitmapFactory.decodeStream(input)
         } catch (e: Exception) {
             null
         }
     }
 
-    private fun saveToDiskCache(url: String, bitmap: Bitmap) {
-        try {
-            val editor = diskCache.edit(url)
-            editor?.let {
-                it.newOutputStream(0).use { output ->
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 80, output)
-                }
-                it.commit()
-            }
-        } catch (e: Exception) {
-            Log.e("ImageLoader", "Failed to save to disk cache: ${e.message}")
+    fun clearCache() {
+        memoryCache.evictAll()
+    }
+
+    fun shutdown() {
+        scope.cancel()
+    }
+}
+
+class LruCache<K, V>(private val maxSize: Int) {
+    private val cache = LinkedHashMap<K, V>(16, 0.75f, true)
+    private var size = 0
+
+    operator fun get(key: K): V? = cache[key]
+
+    fun put(key: K, value: V) {
+        val previous = cache.put(key, value)
+        previous?.let { size -= getSize(it) }
+        size += getSize(value)
+
+        while (size > maxSize && cache.isNotEmpty()) {
+            val eldest = cache.entries.iterator().next()
+            cache.remove(eldest.key)
+            size -= getSize(eldest.value)
         }
     }
 
-    // Очистка кэша
-    fun clearCache() {
-        memoryCache.evictAll()
-        diskCache.delete()
+    fun evictAll() {
+        cache.clear()
+        size = 0
+    }
+
+    private fun getSize(value: V): Int {
+        return when (value) {
+            is Bitmap -> value.byteCount
+            else -> 1
+        }
     }
 }

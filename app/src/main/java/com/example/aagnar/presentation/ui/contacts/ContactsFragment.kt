@@ -5,78 +5,45 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.aagnar.databinding.FragmentContactsBinding
+import androidx.recyclerview.widget.RecyclerView
+import com.example.aagnar.R
+import com.example.aagnar.util.PerformanceMonitor
 
 class ContactsFragment : Fragment() {
 
-    private var _binding: FragmentContactsBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var contactsRecyclerView: RecyclerView
+    private lateinit var emptyState: View
+    private lateinit var searchView: android.widget.SearchView
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentContactsBinding.inflate(inflater, container, false)
-        return binding.root
+        return inflater.inflate(R.layout.fragment_contacts, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupContactsList()
-        loadContacts()
-    }
-
-    private fun setupContactsList() {
-        val contactsAdapter = ContactsAdapter(emptyList()) { contact ->
-            openContact(contact)
-        }
-
-        binding.contactsRecyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = contactsAdapter
-        }
-
-        binding.swipeRefresh.setOnRefreshListener {
+        PerformanceMonitor.measure("ContactsFragment.onViewCreated") {
+            initViews(view)
+            setupRecyclerView()
             loadContacts()
         }
     }
 
+    private fun initViews(view: View) {
+        contactsRecyclerView = view.findViewById(R.id.contactsRecyclerView)
+        emptyState = view.findViewById(R.id.emptyState)
+        searchView = view.findViewById(R.id.searchView)
+    }
+
+    private fun setupRecyclerView() {
+        // TODO: Настроить адаптер контактов
+    }
+
     private fun loadContacts() {
-        // TODO: Загрузить контакты из базы данных
-        val contacts = listOf(
-            Contact("user123", Status.ONLINE, System.currentTimeMillis() - 300000),
-            Contact("alice", Status.AWAY, System.currentTimeMillis() - 3600000),
-            Contact("bob", Status.OFFLINE, System.currentTimeMillis() - 86400000)
-        )
-
-        (binding.contactsRecyclerView.adapter as? ContactsAdapter)?.updateContacts(contacts)
-        binding.swipeRefresh.isRefreshing = false
-
-        binding.emptyState.visibility = if (contacts.isEmpty()) View.VISIBLE else View.GONE
+        // TODO: Загрузить список контактов
     }
-
-    private fun openContact(contact: Contact) {
-        // TODO: Открыть детали контакта или начать чат
-        showMessage("Открыть контакт: ${contact.username}")
-    }
-
-    private fun showMessage(message: String) {
-        android.widget.Toast.makeText(requireContext(), message, android.widget.Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    private fun openChat(contactName: String) {
-        val intent = Intent(requireContext(), ChatActivity::class.java).apply {
-            putExtra("contact_name", contactName)
-        }
-        startActivity(intent)
-    }
-
 }

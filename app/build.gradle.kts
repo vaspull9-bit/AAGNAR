@@ -1,8 +1,11 @@
+// C:\Users\trii\AndroidStudioProjects\AAGNAR\app\build.gradle.kts
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.kapt")  // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+    id("com.google.devtools.ksp")    // ← ДОБАВИТЬ для Room
 }
 
 android {
@@ -15,7 +18,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 4
-        versionName = "4.0.6"
+        versionName = "4.0.7"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -90,6 +93,9 @@ android {
 //}
 
 dependencies {
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
     // Kotlin
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
@@ -129,7 +135,7 @@ dependencies {
     // Database
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
 
     // Security
     implementation(libs.androidx.security.crypto)
@@ -162,12 +168,22 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     // JSON
-    implementation("org.json:json:20231013")
+    implementation(libs.json)
 
     // WebRTC
-    implementation(libs.webrtc.android)
+   // implementation(libs.webrtc.android)
+   //  implementation(libs.google.webrtc)
+   // implementation(libs.webrtc)
+   //implementation("org.pion:webrtc:0.0.0")    // Permissions
+   // implementation(libs.runtime.permission.kotlin)
+    // implementation("io.livekit:livekit-webrtc:0.10.0")
+   // implementation("com.github.dbakhtin:webrtc-android:1.0.0")
+        // implementation("com.github.react-native-webrtc:webrtc:107.0.0")
+    implementation("io.getstream:stream-webrtc-android:1.1.1")
 
-    // Permissions
-    implementation("com.github.florent37:runtime-permission-kotlin:1.1.2")
+    //implementation("com.github.florent37:runtime-permission:1.1.2")
+    implementation("androidx.activity:activity-ktx:1.8.0")
+    implementation("androidx.fragment:fragment-ktx:1.6.1")
 
+    implementation("de.hdodenhof:circleimageview:3.1.0")
 }

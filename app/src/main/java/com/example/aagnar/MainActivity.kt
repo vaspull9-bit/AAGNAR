@@ -1,31 +1,35 @@
-// AAGNAR v4.0.6
-//
-
+//AAGNAR  v4.0.7
 package com.example.aagnar
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import com.example.aagnar.databinding.ActivityMainBinding
 import com.example.aagnar.presentation.adapter.MainPagerAdapter
-import com.example.aagnar.presentation.ui.chats.ChatsFragment
-import com.example.aagnar.presentation.ui.contacts.ContactsFragment
-import com.example.aagnar.presentation.ui.calls.CallsFragment
 import com.example.aagnar.presentation.ui.settings.SettingsFragment
+import com.example.aagnar.util.PerformanceMonitor
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
+    private lateinit var tabLayout: TabLayout
+    private lateinit var viewPager: androidx.viewpager2.widget.ViewPager2
+    private lateinit var toolbar: Toolbar
+    private lateinit var menuButton: ImageButton
+    private lateinit var searchButton: ImageButton
+    private lateinit var addContactButton: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +42,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return
         }
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_main)
 
         initViews()
         setupViewPager()
@@ -47,19 +50,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun initViews() {
-        drawerLayout = binding.drawerLayout
-        navigationView = binding.navigationView
+        drawerLayout = findViewById(R.id.drawerLayout)
+        navigationView = findViewById(R.id.navView)
+        tabLayout = findViewById(R.id.tabLayout)
+        viewPager = findViewById(R.id.viewPager)
+        toolbar = findViewById(R.id.toolbar)
+        menuButton = findViewById(R.id.menuButton)
+        searchButton = findViewById(R.id.searchButton)
+        addContactButton = findViewById(R.id.addContactButton)
 
-        // Настройка toolbar
-        setSupportActionBar(binding.toolbar)
+        setSupportActionBar(toolbar)
     }
 
     private fun setupViewPager() {
         val pagerAdapter = MainPagerAdapter(this)
-        binding.viewPager.adapter = pagerAdapter
+        viewPager.adapter = pagerAdapter
 
-        // Связываем TabLayout с ViewPager2
-        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {
                 0 -> "Чаты"
                 1 -> "Контакты"
@@ -68,18 +75,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }.attach()
 
-        // Обработчики кнопок в toolbar
-        binding.menuButton.setOnClickListener {
+        menuButton.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
 
-        binding.searchButton.setOnClickListener {
-            // TODO: Открыть поиск
+        searchButton.setOnClickListener {
             showMessage("Поиск")
         }
 
-        binding.addContactButton.setOnClickListener {
-            // TODO: Открыть добавление контакта
+        addContactButton.setOnClickListener {
             showMessage("Добавить контакт")
         }
     }
@@ -107,13 +111,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun showProfile() {
-        // TODO: Открыть профиль пользователя
         showMessage("Профиль")
     }
 
     private fun showAbout() {
         android.app.AlertDialog.Builder(this)
-            .setTitle("AAGNAR v4.0.6")
+            .setTitle("AAGNAR v4.0.7")
             .setMessage("P2P клиент, DeeR Tuund (C) 2025\n\nОсновано на JAMI")
             .setPositiveButton("OK", null)
             .show()
@@ -127,7 +130,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun showMessage(message: String) {
-        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onBackPressed() {

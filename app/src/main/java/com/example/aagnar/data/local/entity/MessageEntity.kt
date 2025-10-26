@@ -3,16 +3,15 @@ package com.example.aagnar.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.ColumnInfo
-import androidx.room.TypeConverters
-import com.example.aagnar.data.local.converters.MessageTypeConverter
-import com.example.aagnar.domain.model.MessageType
+import androidx.room.Index
+import java.util.Date
 
 @Entity(
     tableName = "message",
     indices = [
-        Index(value = ["contactName", "timestamp"], unique = false),
-        Index(value = ["timestamp"], unique = false),
-        Index(value = ["isDelivered"], unique = false)
+        Index(value = ["contactName", "timestamp"]),
+        Index(value = ["timestamp"]),
+        Index(value = ["isDelivered"])
     ]
 )
 data class MessageEntity(
@@ -25,10 +24,10 @@ data class MessageEntity(
     @ColumnInfo(name = "content")
     val content: String,
 
-    @ColumnInfo(name = "timestamp", index = true)
+    @ColumnInfo(name = "timestamp")
     val timestamp: Date,
 
-    @ColumnInfo(name = "isDelivered", index = true)
+    @ColumnInfo(name = "isDelivered")
     val isDelivered: Boolean = false,
 
     @ColumnInfo(name = "isRead")
@@ -36,17 +35,4 @@ data class MessageEntity(
 
     @ColumnInfo(name = "isEncrypted")
     val isEncrypted: Boolean = false
-) {
-    fun toDomain(): Message {
-        return Message(
-            id = id,
-            contactName = contactName,
-            content = content,
-            timestamp = timestamp,
-            type = MessageType.RECEIVED, // Определяется в бизнес-логике
-            isDelivered = isDelivered,
-            isRead = isRead,
-            isEncrypted = isEncrypted
-        )
-    }
-}
+)

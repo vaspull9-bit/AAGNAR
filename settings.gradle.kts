@@ -17,7 +17,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }  // ← ДОБАВЬ ДЛЯ REALM-MONARCHY
-        // maven { url = uri("https://google.bintray.com/webrtc") }
+
     }
 }
 

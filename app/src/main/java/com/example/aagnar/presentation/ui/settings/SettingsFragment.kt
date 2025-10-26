@@ -5,9 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import com.example.aagnar.R
+import com.example.aagnar.util.PerformanceMonitor
 
 class SettingsFragment : Fragment() {
+
+    private lateinit var settingsRecyclerView: RecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -19,6 +23,18 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Пока пусто - добавим настройки позже
+
+        PerformanceMonitor.measure("SettingsFragment.onViewCreated") {
+            initViews(view)
+            setupRecyclerView()
+        }
+    }
+
+    private fun initViews(view: View) {
+        settingsRecyclerView = view.findViewById(R.id.settingsRecyclerView)
+    }
+
+    private fun setupRecyclerView() {
+        // TODO: Настроить адаптер настроек
     }
 }

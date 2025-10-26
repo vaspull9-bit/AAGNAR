@@ -1,14 +1,16 @@
 [versions]
 # Убрать дубликаты - оставить только ОДНУ версию для каждого
 android-gradle-plugin = "8.1.0"  # можно удалить, т.к. не используется
+googleWebrtc = "1.0.32006"
+jsonVersion = "20231013"
 kotlin = "1.9.0"  # ← ОДНА версия Kotlin # можно удалить, т.к. не используется
 hilt = "2.51.1"   # ← ОДНА версия Hilt
 
 # Версии библиотек
-cameraCamera2 = "1.2.3"
-cameraCore = "1.5.1"
-cameraLifecycle = "1.2.3"
-cameraView = "1.2.3"
+cameraCamera2 = "1.3.0"
+cameraCore = "1.3.0"
+cameraLifecycle = "1.3.0"
+cameraView = "1.3.0"
 core = "3.5.1"
 javaWebsocket = "1.6.0"
 coroutines = "1.8.1"
@@ -23,6 +25,7 @@ media = "1.7.0"
 room = "2.6.1"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
+#runtimePermissionKotlin = "1.1.2"
 security = "1.1.0-alpha06"
 work = "2.9.0"
 preference = "1.2.1"
@@ -36,14 +39,26 @@ swiperefresh = "1.1.0"
 recyclerview = "1.3.2"
 cardview = "1.0.0"
 circleimageview = "3.1.0"
-webrtc = "1.0.32006"
+# webrtc = "1.0.32006"
+ksp = "1.9.0-1.0.13"  # ← ДОБАВИТЬ
+json = "20250517"  # ← НОВАЯ версия
+desugar = "2.0.4"
 
 
+[plugins]
+# ДОБАВИТЬ
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [libraries]
-
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
+#google-webrtc = { module = "org.webrtc:google-webrtc", version.ref = "googleWebrtc" }
+json = { module = "org.json:json", version.ref = "json" }  # ← ДОБАВИТЬ
 # webrtc
-webrtc-android = { module = "org.webrtc:google-webrtc", version.ref = "webrtc" }
+# json = { module = "org.json:json", version.ref = "jsonVersion" }
+#runtime-permission-kotlin = { module = "com.github.florent37:runtime-permission-kotlin", version.ref = "runtimePermissionKotlin" }
+# webrtc = { module = "org.webrtc:google-webrtc", version.ref = "webrtc" }
+#webrtc = { module = "com.github.piasy:webrtc", version.ref = "webrtc" }
+#webrtc-android = { module = "com.github.webrtc-sdk:android", version = "120.0.0" }  # ← ДОБАВИТЬ
 
 
 # Camera
