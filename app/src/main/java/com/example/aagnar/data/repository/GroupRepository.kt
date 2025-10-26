@@ -1,53 +1,53 @@
 package com.example.aagnar.data.repository
 
-import com.example.aagnar.data.local.dao.GroupDao
-import com.example.aagnar.data.remote.WebSocketRepository
 import com.example.aagnar.domain.model.Group
 import com.example.aagnar.domain.model.GroupMessage
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class GroupRepository @Inject constructor(
-    private val groupDao: GroupDao,
-    private val webSocketRepository: WebSocketRepository
-) {
+@Singleton
+class GroupRepository @Inject constructor() {
+    // ВРЕМЕННО: убрали зависимости от GroupDao и WebSocketRepository
 
     suspend fun createGroup(groupName: String, members: List<String>) {
-        webSocketRepository.createGroup(groupName, members)
+        // Заглушка
+        println("Creating group: $groupName with members: $members")
     }
 
     suspend fun sendGroupMessage(groupId: String, content: String): String {
-        val messageId = java.util.UUID.randomUUID().toString()
-        webSocketRepository.sendGroupMessage(groupId, content, messageId)
+        // Заглушка
+        val messageId = UUID.randomUUID().toString()
+        println("Sending message to group $groupId: $content")
         return messageId
     }
 
     suspend fun addMembersToGroup(groupId: String, newMembers: List<String>) {
-        webSocketRepository.addMembersToGroup(groupId, newMembers)
+        // Заглушка
+        println("Adding members to group $groupId: $newMembers")
     }
 
     suspend fun leaveGroup(groupId: String) {
-        webSocketRepository.leaveGroup(groupId)
+        // Заглушка
+        println("Leaving group: $groupId")
     }
 
-    // Локальные операции с базой данных
-    fun getGroups(): Flow<List<Group>> {
-        return groupDao.getGroups()
-    }
+    // Локальные операции с базой данных - заглушки
+    fun getGroups(): Flow<List<Group>> = flowOf(emptyList())
 
-    fun getGroupMessages(groupId: String): Flow<List<GroupMessage>> {
-        return groupDao.getGroupMessages(groupId)
-    }
+    fun getGroupMessages(groupId: String): Flow<List<GroupMessage>> = flowOf(emptyList())
 
     suspend fun insertGroup(group: Group) {
-        groupDao.insertGroup(group)
+        // Заглушка
     }
 
     suspend fun insertGroupMessage(message: GroupMessage) {
-        groupDao.insertGroupMessage(message)
+        // Заглушка
     }
 
-    suspend fun updateGroupLastMessage(groupId: String, lastMessage: String, timestamp: java.util.Date) {
-        groupDao.updateGroupLastMessage(groupId, lastMessage, timestamp)
+    suspend fun updateGroupLastMessage(groupId: String, lastMessage: String, timestamp: Date) {
+        // Заглушка
     }
 }

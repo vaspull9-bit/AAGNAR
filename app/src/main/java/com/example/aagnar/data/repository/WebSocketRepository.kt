@@ -4,14 +4,26 @@ import android.content.Context
 import com.example.aagnar.data.remote.WebSocketClient
 import com.example.aagnar.domain.model.Message
 import kotlinx.coroutines.flow.StateFlow
+import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.example.aagnar.domain.model.FileInfo // ← ДОБАВЬ ЭТУ СТРОКУ
 
 @Singleton
 class WebSocketRepository @Inject constructor(
     private val context: Context
 ) {
     private var webSocketClient: WebSocketClient? = null
+
+    fun sendFileChunk(
+        toUser: String,
+        fileInfo: FileInfo,
+        chunkData: ByteArray,
+        chunkIndex: Int,
+        totalChunks: Int
+    ) {
+        webSocketClient?.sendFileChunk(toUser, fileInfo, chunkData, chunkIndex, totalChunks)
+    }
 
     fun connect(username: String) {
         webSocketClient = WebSocketClient(context, username).apply {

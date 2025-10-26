@@ -4,7 +4,9 @@ package com.example.aagnar
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -18,6 +20,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -51,7 +54,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun initViews() {
         drawerLayout = findViewById(R.id.drawerLayout)
-        navigationView = findViewById(R.id.navView)
+        navigationView = findViewById(R.id.navigationView)
         tabLayout = findViewById(R.id.tabLayout)
         viewPager = findViewById(R.id.viewPager)
         toolbar = findViewById(R.id.toolbar)
@@ -104,10 +107,56 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun showFragment(fragment: Fragment) {
+        // Скрываем ViewPager и показываем FragmentContainer
+        viewPager.visibility = View.GONE
+
+        val fragmentContainer = findViewById<androidx.fragment.app.FragmentContainerView>(R.id.fragment_container)
+        fragmentContainer.visibility = View.VISIBLE
+
+        // Правильное изменение layout params
+        val layoutParams = fragmentContainer.layoutParams as LinearLayout.LayoutParams
+        layoutParams.height = LinearLayout.LayoutParams.MATCH_PARENT
+        layoutParams.weight = 1f
+        fragmentContainer.layoutParams = layoutParams
+
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
+    }
+
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else if (isFragmentVisible()) {
+            // Если открыт фрагмент, возвращаемся к ViewPager
+            returnToViewPager()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    private fun isFragmentVisible(): Boolean {
+        val fragmentContainer = findViewById<androidx.fragment.app.FragmentContainerView>(R.id.fragment_container)
+        return fragmentContainer.visibility == View.VISIBLE
+    }
+
+    private fun returnToViewPager() {
+        // Показываем ViewPager и скрываем FragmentContainer
+        viewPager.visibility = View.VISIBLE
+
+        val fragmentContainer = findViewById<androidx.fragment.app.FragmentContainerView>(R.id.fragment_container)
+        fragmentContainer.visibility = View.GONE
+
+        // Правильное изменение layout params
+        val layoutParams = fragmentContainer.layoutParams as LinearLayout.LayoutParams
+        layoutParams.height = 0
+        layoutParams.weight = 0f
+        fragmentContainer.layoutParams = layoutParams
+
+        // Очищаем back stack
+        supportFragmentManager.popBackStack()
     }
 
     private fun showProfile() {
@@ -133,11 +182,5 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
-    }
+
 }

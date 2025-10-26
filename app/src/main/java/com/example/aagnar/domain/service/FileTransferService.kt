@@ -2,7 +2,7 @@ package com.example.aagnar.domain.service
 
 import android.content.Context
 import android.net.Uri
-import com.example.aagnar.data.remote.WebSocketRepository
+import com.example.aagnar.data.repository.WebSocketRepository
 import com.example.aagnar.domain.model.FileInfo
 import com.example.aagnar.util.FileManager
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +34,7 @@ class FileTransferService @Inject constructor(
 
                 // Отправляем chunks по одному
                 chunks.forEachIndexed { index, chunk ->
-                    webSocketRepository.sendFileChunk(
+                    sendFileChunk(  // ← ИСПРАВЛЕНО: используем метод этого класса
                         toUser = toUser,
                         fileInfo = sendingFileInfo,
                         chunkData = chunk,
@@ -56,6 +56,16 @@ class FileTransferService @Inject constructor(
                 false
             }
         }
+    }
+
+    fun sendFileChunk(
+        toUser: String,
+        fileInfo: FileInfo,
+        chunkData: ByteArray,
+        chunkIndex: Int,
+        totalChunks: Int
+    ) {
+        webSocketRepository.sendFileChunk(toUser, fileInfo, chunkData, chunkIndex, totalChunks)  // ← ИСПРАВЛЕНО: используем webSocketRepository вместо webSocketClient
     }
 
     suspend fun receiveFile(chunks: List<ByteArray>, fileName: String): Uri? {

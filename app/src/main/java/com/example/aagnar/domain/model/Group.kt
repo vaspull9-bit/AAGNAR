@@ -1,8 +1,12 @@
 package com.example.aagnar.domain.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.*
 
+@Entity(tableName = "group") // ← ДОЛЖНО СОВПАДАТЬ С "group" в DAO
 data class Group(
+    @PrimaryKey
     val id: String,
     val name: String,
     val creator: String,
@@ -13,25 +17,4 @@ data class Group(
     val lastMessageTime: Date? = null,
     val unreadCount: Int = 0,
     val avatarUrl: String? = null
-)
-
-data class GroupMessage(
-    val id: String,
-    val groupId: String,
-    val sender: String,
-    val content: String,
-    val timestamp: Date,
-    val type: MessageType,
-    val isDelivered: Boolean = false,
-    val isRead: Boolean = false,
-    val hasAttachment: Boolean = false,
-    val fileInfo: FileInfo? = null,
-    val isVoiceMessage: Boolean = false,
-    val voiceMessageInfo: VoiceMessageInfo? = null
-)
-
-data class GroupMember(
-    val username: String,
-    val isAdmin: Boolean = false,
-    val joinedAt: Date = Date()
 )

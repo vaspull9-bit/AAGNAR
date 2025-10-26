@@ -1,8 +1,12 @@
 package com.example.aagnar.data.repository
 
 import com.example.aagnar.domain.repository.ContactRepository
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ContactRepositoryImpl : ContactRepository {
+@Singleton
+class ContactRepositoryImpl @Inject constructor() : ContactRepository {
+
     override suspend fun searchContacts(query: String): List<Any> {
         return emptyList()
     }

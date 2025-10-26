@@ -5,25 +5,36 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.example.aagnar.databinding.ActivityCallBinding
-import com.example.aagnar.webrtc.SignalingClient
-import com.example.aagnar.webrtc.WebRTCManager
+import com.example.aagnar.R
 import dagger.hilt.android.AndroidEntryPoint
-import org.webrtc.*
 
 @AndroidEntryPoint
-class CallActivity : AppCompatActivity(), WebRTCManager.SignalingListener {
+class CallActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityCallBinding
+    // Views из твоего layout
+    private lateinit var remoteVideoView: org.webrtc.SurfaceViewRenderer
+    private lateinit var localVideoView: org.webrtc.SurfaceViewRenderer
+    private lateinit var contactName: TextView
+    private lateinit var callStatus: TextView
+    private lateinit var activeCallLayout: LinearLayout
+    private lateinit var incomingCallLayout: LinearLayout
+    private lateinit var endCallButton: ImageButton
+    private lateinit var acceptCallButton: ImageButton
+    private lateinit var rejectCallButton: ImageButton
+    private lateinit var muteAudioButton: ImageButton
+    private lateinit var muteVideoButton: ImageButton
+    private lateinit var switchCameraButton: ImageButton
+
     private val viewModel: CallViewModel by viewModels()
 
-    private lateinit var webRTCManager: WebRTCManager
-    private lateinit var signalingClient: SignalingClient
-
-    private var contactName: String = ""
+    private var contactNameText: String = ""
     private var isVideoCall: Boolean = true
     private var isIncomingCall: Boolean = false
 
@@ -43,10 +54,13 @@ class CallActivity : AppCompatActivity(), WebRTCManager.SignalingListener {
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        binding = ActivityCallBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_call)
 
-        contactName = intent.getStringExtra("contact_name") ?: "Unknown"
+        // Инициализация View
+        initViews()
+
+        // Получение данных из Intent
+        contactNameText = intent.getStringExtra("contact_name") ?: "Unknown"
         isVideoCall = intent.getBooleanExtra("is_video_call", true)
         isIncomingCall = intent.getBooleanExtra("is_incoming", false)
 
@@ -54,48 +68,63 @@ class CallActivity : AppCompatActivity(), WebRTCManager.SignalingListener {
         checkPermissions()
     }
 
+    private fun initViews() {
+        remoteVideoView = findViewById(R.id.remoteVideoView)
+        localVideoView = findViewById(R.id.localVideoView)
+        contactName = findViewById(R.id.contactName)
+        callStatus = findViewById(R.id.callStatus)
+        activeCallLayout = findViewById(R.id.activeCallLayout)
+        incomingCallLayout = findViewById(R.id.incomingCallLayout)
+        endCallButton = findViewById(R.id.endCallButton)
+        acceptCallButton = findViewById(R.id.acceptCallButton)
+        rejectCallButton = findViewById(R.id.rejectCallButton)
+        muteAudioButton = findViewById(R.id.muteAudioButton)
+        muteVideoButton = findViewById(R.id.muteVideoButton)
+        switchCameraButton = findViewById(R.id.switchCameraButton)
+    }
+
     private fun setupUI() {
-        binding.contactName.text = contactName
-        binding.callStatus.text = if (isIncomingCall) "Входящий вызов" else "Исходящий вызов"
+        contactName.text = contactNameText
+        callStatus.text = if (isIncomingCall) "Входящий вызов" else "Исходящий вызов"
 
         // Кнопки управления звонком
-        binding.endCallButton.setOnClickListener {
+        endCallButton.setOnClickListener {
             endCall()
         }
 
-        binding.acceptCallButton.setOnClickListener {
+        acceptCallButton.setOnClickListener {
             acceptCall()
         }
 
-        binding.rejectCallButton.setOnClickListener {
+        rejectCallButton.setOnClickListener {
             rejectCall()
         }
 
-        binding.muteAudioButton.setOnClickListener {
+        muteAudioButton.setOnClickListener {
             toggleAudioMute()
         }
 
-        binding.muteVideoButton.setOnClickListener {
+        muteVideoButton.setOnClickListener {
             toggleVideoMute()
         }
 
-        binding.switchCameraButton.setOnClickListener {
+        switchCameraButton.setOnClickListener {
             switchCamera()
         }
 
         // Показываем соответствующие кнопки для входящего/исходящего звонка
         if (isIncomingCall) {
-            binding.incomingCallLayout.visibility = View.VISIBLE
-            binding.activeCallLayout.visibility = View.GONE
+            incomingCallLayout.visibility = View.VISIBLE
+            activeCallLayout.visibility = View.GONE
         } else {
-            binding.incomingCallLayout.visibility = View.GONE
-            binding.activeCallLayout.visibility = View.VISIBLE
+            incomingCallLayout.visibility = View.GONE
+            activeCallLayout.visibility = View.VISIBLE
         }
 
         // Скрываем кнопку видео если это аудиозвонок
         if (!isVideoCall) {
-            binding.muteVideoButton.visibility = View.GONE
-            binding.switchCameraButton.visibility = View.GONE
+            muteVideoButton.visibility = View.GONE
+            switchCameraButton.visibility = View.GONE
         }
     }
 
@@ -105,7 +134,7 @@ class CallActivity : AppCompatActivity(), WebRTCManager.SignalingListener {
         }
 
         if (missingPermissions.isEmpty()) {
-            initializeWebRTC()
+            initializeCall()
         } else {
             requestPermissions(missingPermissions.toTypedArray(), PERMISSION_REQUEST_CODE)
         }
@@ -121,7 +150,7 @@ class CallActivity : AppCompatActivity(), WebRTCManager.SignalingListener {
         if (requestCode == PERMISSION_REQUEST_CODE) {
             val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
             if (allGranted) {
-                initializeWebRTC()
+                initializeCall()
             } else {
                 showMessage("Разрешения необходимы для совершения звонка")
                 finish()
@@ -129,15 +158,13 @@ class CallActivity : AppCompatActivity(), WebRTCManager.SignalingListener {
         }
     }
 
-    private fun initializeWebRTC() {
-        webRTCManager = WebRTCManager(this, this)
-        webRTCManager.initialize()
-
-        signalingClient = viewModel.getSignalingClient()
+    private fun initializeCall() {
+        // Временная заглушка для WebRTC
+        callStatus.text = "Инициализация звонка..."
 
         if (isIncomingCall) {
             // Для входящего звонка ждем подтверждения
-            binding.callStatus.text = "Входящий вызов..."
+            callStatus.text = "Входящий вызов..."
         } else {
             // Инициируем исходящий звонок
             startCall()
@@ -145,125 +172,58 @@ class CallActivity : AppCompatActivity(), WebRTCManager.SignalingListener {
     }
 
     private fun startCall() {
-        webRTCManager.startCall(isVideoCall)
-        signalingClient.sendCallRequest(contactName, isVideoCall)
-        binding.callStatus.text = "Установка соединения..."
+        callStatus.text = "Установка соединения..."
+        // TODO: Реализовать начало звонка через WebRTC
     }
 
     private fun acceptCall() {
-        binding.incomingCallLayout.visibility = View.GONE
-        binding.activeCallLayout.visibility = View.VISIBLE
-        binding.callStatus.text = "Установка соединения..."
-
-        webRTCManager.acceptCall(isVideoCall)
-        signalingClient.sendCallAccept()
+        incomingCallLayout.visibility = View.GONE
+        activeCallLayout.visibility = View.VISIBLE
+        callStatus.text = "Установка соединения..."
+        // TODO: Реализовать принятие звонка через WebRTC
     }
 
     private fun rejectCall() {
-        signalingClient.sendCallReject()
+        // TODO: Реализовать отклонение звонка
         finish()
     }
 
     private fun endCall() {
-        signalingClient.sendEndCall()
-        webRTCManager.endCall()
+        // TODO: Реализовать завершение звонка
         finish()
     }
 
     private fun toggleAudioMute() {
-        val isMuted = binding.muteAudioButton.isSelected
-        binding.muteAudioButton.isSelected = !isMuted
-        webRTCManager.toggleAudioMute(!isMuted)
+        val isMuted = muteAudioButton.isSelected
+        muteAudioButton.isSelected = !isMuted
+        // Смена иконки
+        muteAudioButton.setImageResource(
+            if (!isMuted) R.drawable.ic_mic_off else R.drawable.ic_mic_on
+        )
+        // TODO: Реализовать отключение звука
     }
 
     private fun toggleVideoMute() {
-        val isMuted = binding.muteVideoButton.isSelected
-        binding.muteVideoButton.isSelected = !isMuted
-        webRTCManager.toggleVideoMute(!isMuted)
-
-        if (!isMuted) {
-            binding.localVideoView.visibility = View.GONE
-        } else {
-            binding.localVideoView.visibility = View.VISIBLE
-        }
+        val isMuted = muteVideoButton.isSelected
+        muteVideoButton.isSelected = !isMuted
+        // Смена иконки
+        muteVideoButton.setImageResource(
+            if (!isMuted) R.drawable.ic_videocam_off else R.drawable.ic_videocam_on
+        )
+        // TODO: Реализовать отключение видео
     }
 
     private fun switchCamera() {
-        webRTCManager.switchCamera()
-    }
-
-    // WebRTCManager.SignalingListener implementation
-    override fun onLocalStreamAdded(stream: MediaStream) {
-        runOnUiThread {
-            // Отображаем локальное видео
-            stream.videoTracks.firstOrNull()?.addSink(binding.localVideoView)
-            binding.localVideoView.visibility = View.VISIBLE
-        }
-    }
-
-    override fun onRemoteStreamAdded(stream: MediaStream) {
-        runOnUiThread {
-            // Отображаем удаленное видео
-            stream.videoTracks.firstOrNull()?.addSink(binding.remoteVideoView)
-            binding.remoteVideoView.visibility = View.VISIBLE
-            binding.callStatus.text = "Соединение установлено"
-
-            // Показываем управление звонком
-            binding.callControls.visibility = View.VISIBLE
-        }
-    }
-
-    override fun onRemoteStreamRemoved() {
-        runOnUiThread {
-            binding.remoteVideoView.visibility = View.GONE
-            binding.callStatus.text = "Соединение прервано"
-        }
-    }
-
-    override fun onIceConnectionChange(state: PeerConnection.IceConnectionState) {
-        runOnUiThread {
-            when (state) {
-                PeerConnection.IceConnectionState.CONNECTED -> {
-                    binding.callStatus.text = "Соединение установлено"
-                }
-                PeerConnection.IceConnectionState.DISCONNECTED -> {
-                    binding.callStatus.text = "Соединение прервано"
-                }
-                PeerConnection.IceConnectionState.FAILED -> {
-                    binding.callStatus.text = "Ошибка соединения"
-                    endCall()
-                }
-                else -> {}
-            }
-        }
-    }
-
-    override fun onIceCandidate(candidate: IceCandidate) {
-        signalingClient.sendIceCandidate(candidate)
-    }
-
-    override fun onOfferCreated(offer: SessionDescription) {
-        signalingClient.sendOffer(offer)
-    }
-
-    override fun onAnswerCreated(answer: SessionDescription) {
-        signalingClient.sendAnswer(answer)
+        // TODO: Реализовать переключение камеры
     }
 
     private fun showMessage(message: String) {
-        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onBackPressed() {
         // Запрещаем возврат во время звонка
-        if (signalingClient.callState.value !is SignalingClient.CallState.Idle) {
-            return
-        }
+        // TODO: Добавить проверку состояния звонка
         super.onBackPressed()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        webRTCManager.endCall()
     }
 }

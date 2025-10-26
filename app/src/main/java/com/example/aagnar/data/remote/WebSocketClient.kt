@@ -14,7 +14,9 @@ import org.json.JSONObject
 import java.net.URI
 import java.util.*
 import java.util.concurrent.Executors
-import kotlin.collections.LinkedList
+import java.util.LinkedList // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+import java.util.Date // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+import com.example.aagnar.domain.model.FileInfo
 
 class WebSocketClient(
     private val context: Context,
@@ -375,101 +377,157 @@ class WebSocketClient(
         }
     }
 
+//    private fun handleIncomingMessage(json: JSONObject) {
+//        val fromUser = json.getString("from")
+//        val content = json.getString("content")
+//        val messageId = json.getString("message_id")
+//        val timestamp = json.getLong("timestamp")
+//        val fileName = json.getString("file_name")
+//        val fileType = json.getString("file_type")
+//        val fileSize = json.getLong("file_size")
+//        val fileId = json.getString("file_id")
+//        val chunkIndex = json.getInt("chunk_index")
+//        val totalChunks = json.getInt("total_chunks")
+//
+//        // Создаем fileInfo если модель требует его
+//        val fileInfo = com.example.aagnar.domain.model.FileInfo(
+//            name = fileName,
+//            size = fileSize,
+//            type = fileType,
+//            fileId = fileId,
+//            transferProgress = ((chunkIndex + 1) * 100 / totalChunks)
+//        )
+//
+//        val message = Message(
+//            id = fileId + "_chunk_" + chunkIndex,
+//            contactName = fromUser,
+//            content = "📎 $fileName",
+//            timestamp = System.currentTimeMillis(), // ← ИСПРАВЛЕНО
+//            type = com.example.aagnar.domain.model.MessageType.RECEIVED,
+//            hasAttachment = true,
+//            fileInfo = fileInfo
+//        )
+//
+//        addToIncomingMessages(message)
+//        Log.d(TAG, "Received message from $fromUser: ${content.take(50)}...")
+//    }
+
     private fun handleIncomingMessage(json: JSONObject) {
-        val fromUser = json.getString("from")
-        val content = json.getString("content")
-        val messageId = json.getString("message_id")
-        val timestamp = json.getLong("timestamp")
+        try {
+            val fromUser = json.getString("from")
+            val content = json.getString("content")
+            val messageId = json.getString("message_id")
+            val timestamp = json.getLong("timestamp")
 
-        val message = Message(
-            id = messageId,
-            contactName = fromUser,
-            content = content,
-            timestamp = java.util.Date(timestamp),
-            type = com.example.aagnar.domain.model.MessageType.RECEIVED,
-            isDelivered = true
-        )
 
-        addToIncomingMessages(message)
-        Log.d(TAG, "Received message from $fromUser: ${content.take(50)}...")
+
+            val message = Message(
+                id = messageId,
+                contactName = fromUser,
+                content = content,
+                timestamp = timestamp,
+                type = com.example.aagnar.domain.model.MessageType.RECEIVED,
+                isDelivered = true
+
+            )
+
+            addToIncomingMessages(message)
+            Log.d(TAG, "Received message from $fromUser: ${content.take(50)}...")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error handling incoming message: ${e.message}")
+        }
     }
 
+
     private fun handleEncryptedMessage(json: JSONObject) {
-        val fromUser = json.getString("from")
-        val encryptedContent = json.getString("encrypted_content")
-        val messageId = json.getString("message_id")
-        val timestamp = json.getLong("timestamp")
+        try {
+            val fromUser = json.getString("from")
+            val encryptedContent = json.getString("encrypted_content")
+            val messageId = json.getString("message_id")
+            val timestamp = json.getLong("timestamp")
 
-        // TODO: Дешифровать сообщение с помощью KeyManager
-        val decryptedContent = "🔒 [Зашифрованное сообщение]" // Временная заглушка
+            // TODO: Дешифровать сообщение с помощью KeyManager
+            val decryptedContent = "🔒 [Зашифрованное сообщение]" // Временная заглушка
 
-        val message = Message(
-            id = messageId,
-            contactName = fromUser,
-            content = decryptedContent,
-            timestamp = java.util.Date(timestamp),
-            type = com.example.aagnar.domain.model.MessageType.RECEIVED,
-            isDelivered = true,
-            isEncrypted = true
-        )
+            val message = Message(
+                id = messageId,
+                contactName = fromUser,
+                content = decryptedContent,
+                timestamp = timestamp,
+                type = com.example.aagnar.domain.model.MessageType.RECEIVED,
+                isDelivered = true,
+                isEncrypted = true
+            )
 
-        addToIncomingMessages(message)
+            addToIncomingMessages(message)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error handling encrypted message: ${e.message}")
+        }
     }
 
     private fun handleVoiceMessage(json: JSONObject) {
-        val fromUser = json.getString("from")
-        val audioData = json.getString("audio_data")
-        val duration = json.getInt("duration")
-        val messageId = json.getString("message_id")
-        val timestamp = json.getLong("timestamp")
+        try {
+            val fromUser = json.getString("from")
+            val audioData = json.getString("audio_data")
+            val duration = json.getInt("duration")
+            val messageId = json.getString("message_id")
+            val timestamp = json.getLong("timestamp")
 
-        val voiceMessageInfo = com.example.aagnar.domain.model.VoiceMessageInfo(
-            duration = duration,
-            audioData = audioData
-        )
+            val voiceMessageInfo = com.example.aagnar.domain.model.VoiceMessageInfo(
+                duration = duration,
+                audioData = audioData
+            )
 
-        val message = Message(
-            id = messageId,
-            contactName = fromUser,
-            content = "🎤 Голосовое сообщение",
-            timestamp = java.util.Date(timestamp),
-            type = com.example.aagnar.domain.model.MessageType.RECEIVED,
-            isVoiceMessage = true,
-            voiceMessageInfo = voiceMessageInfo
-        )
+            val message = Message(
+                id = messageId,
+                contactName = fromUser,
+                content = "🎤 Голосовое сообщение",
+                timestamp = timestamp,
+                type = com.example.aagnar.domain.model.MessageType.RECEIVED,
+                isVoiceMessage = true,
+                voiceMessageInfo = voiceMessageInfo
+            )
 
-        addToIncomingMessages(message)
+            addToIncomingMessages(message)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error handling voice message: ${e.message}")
+        }
     }
 
     private fun handleFileChunk(json: JSONObject) {
-        val fromUser = json.getString("from")
-        val fileName = json.getString("file_name")
-        val fileType = json.getString("file_type")
-        val fileSize = json.getLong("file_size")
-        val fileId = json.getString("file_id")
-        val chunkData = json.getString("chunk_data")
-        val chunkIndex = json.getInt("chunk_index")
-        val totalChunks = json.getInt("total_chunks")
+        try {
+            val fromUser = json.getString("from")
+            val fileName = json.getString("file_name")
+            val fileType = json.getString("file_type")
+            val fileSize = json.getLong("file_size")
+            val fileId = json.getString("file_id")
+            val chunkData = json.getString("chunk_data")
+            val chunkIndex = json.getInt("chunk_index")
+            val totalChunks = json.getInt("total_chunks")
 
-        val fileInfo = com.example.aagnar.domain.model.FileInfo(
-            name = fileName,
-            size = fileSize,
-            type = fileType,
-            fileId = fileId,
-            transferProgress = ((chunkIndex + 1) * 100 / totalChunks)
-        )
+            // Создаем fileInfo если модель требует его
+            val fileInfo = com.example.aagnar.domain.model.FileInfo(
+                name = fileName,
+                size = fileSize,
+                type = fileType,
+                fileId = fileId,
+                transferProgress = ((chunkIndex + 1) * 100 / totalChunks)
+            )
 
-        val message = Message(
-            id = fileId + "_chunk_" + chunkIndex,
-            contactName = fromUser,
-            content = "📎 $fileName",
-            timestamp = java.util.Date(),
-            type = com.example.aagnar.domain.model.MessageType.RECEIVED,
-            hasAttachment = true,
-            fileInfo = fileInfo
-        )
+            val message = Message(
+                id = fileId + "_chunk_" + chunkIndex,
+                contactName = fromUser,
+                content = "📎 $fileName",
+                timestamp = System.currentTimeMillis(),
+                type = com.example.aagnar.domain.model.MessageType.RECEIVED,
+                hasAttachment = true,
+                fileInfo = fileInfo
+            )
 
-        addToIncomingMessages(message)
+            addToIncomingMessages(message)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error handling file chunk: ${e.message}")
+        }
     }
 
     private fun handleTypingIndicator(json: JSONObject) {

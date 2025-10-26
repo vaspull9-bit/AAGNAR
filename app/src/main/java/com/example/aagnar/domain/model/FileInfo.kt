@@ -6,6 +6,7 @@ data class FileInfo(
     val name: String,
     val size: Long,
     val type: String,
-    val uri: Uri,
-    val transferProgress: Int = 0
+    val uri: Uri? = null, // Сделайте nullable
+    val transferProgress: Int = 0,
+    val fileId: String = "" // Добавьте для WebSocket совместимости
 )
