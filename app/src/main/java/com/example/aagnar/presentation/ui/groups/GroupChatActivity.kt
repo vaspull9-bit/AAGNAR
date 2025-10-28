@@ -3,10 +3,14 @@ package com.example.aagnar.presentation.ui.groups
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
+import android.widget.ImageButton
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.aagnar.databinding.ActivityGroupChatBinding
+import androidx.recyclerview.widget.RecyclerView
+import com.example.aagnar.R
 import com.example.aagnar.domain.model.Group
 import com.example.aagnar.domain.model.GroupMessage
 import dagger.hilt.android.AndroidEntryPoint
@@ -14,7 +18,11 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class GroupChatActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityGroupChatBinding
+    private lateinit var toolbar: Toolbar
+    private lateinit var messagesRecyclerView: RecyclerView
+    private lateinit var messageInput: EditText
+    private lateinit var sendButton: ImageButton
+
     private val viewModel: GroupChatViewModel by viewModels()
     private lateinit var messagesAdapter: GroupMessagesAdapter
 
@@ -23,8 +31,9 @@ class GroupChatActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityGroupChatBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_group_chat)
+
+        initViews()
 
         groupId = intent.getStringExtra("group_id") ?: ""
         groupName = intent.getStringExtra("group_name") ?: "Групповой чат"
@@ -35,12 +44,19 @@ class GroupChatActivity : AppCompatActivity() {
         loadGroupData()
     }
 
+    private fun initViews() {
+        toolbar = findViewById(R.id.toolbar)
+        messagesRecyclerView = findViewById(R.id.messagesRecyclerView)
+        messageInput = findViewById(R.id.messageInput)
+        sendButton = findViewById(R.id.sendButton)
+    }
+
     private fun setupUI() {
-        binding.toolbar.title = groupName
-        setSupportActionBar(binding.toolbar)
+        toolbar.title = groupName
+        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        binding.sendButton.setOnClickListener {
+        sendButton.setOnClickListener {
             sendMessage()
         }
     }
@@ -50,7 +66,7 @@ class GroupChatActivity : AppCompatActivity() {
             // Обработка кликов на сообщения
         }
 
-        binding.messagesRecyclerView.apply {
+        messagesRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@GroupChatActivity).apply {
                 stackFromEnd = true
             }
@@ -61,12 +77,12 @@ class GroupChatActivity : AppCompatActivity() {
     private fun observeViewModel() {
         viewModel.messages.observe(this) { messages ->
             messagesAdapter.updateMessages(messages)
-            binding.messagesRecyclerView.smoothScrollToPosition(messages.size - 1)
+            messagesRecyclerView.smoothScrollToPosition(messages.size - 1)
         }
 
         viewModel.groupInfo.observe(this) { group ->
             groupName = group.name
-            binding.toolbar.title = groupName
+            toolbar.title = groupName
         }
     }
 
@@ -76,10 +92,10 @@ class GroupChatActivity : AppCompatActivity() {
     }
 
     private fun sendMessage() {
-        val messageText = binding.messageInput.text.toString().trim()
+        val messageText = messageInput.text.toString().trim()
         if (messageText.isNotEmpty()) {
             viewModel.sendMessage(groupId, messageText)
-            binding.messageInput.setText("")
+            messageInput.setText("")
         }
     }
 

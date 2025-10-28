@@ -4,33 +4,31 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.preference.PreferenceManager
+import com.example.aagnar.domain.model.FileInfo
 import com.example.aagnar.domain.model.Message
 import com.example.aagnar.domain.model.MessageType
+import com.example.aagnar.domain.model.VoiceMessageInfo
 import com.example.aagnar.domain.repository.MessageRepository
 import com.example.aagnar.domain.repository.WebSocketRepository
+import com.example.aagnar.domain.service.EncryptionService
+import com.example.aagnar.domain.service.FileTransferService
+import com.example.aagnar.util.AudioRecorder
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
-import com.example.aagnar.domain.service.EncryptionService
-import com.example.aagnar.domain.service.FileTransferService
-import com.example.aagnar.domain.model.VoiceMessageInfo
-import com.example.aagnar.domain.model.FileInfo
+
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val messageRepository: MessageRepository,
     private val webSocketRepository: WebSocketRepository,
-// Добавляем в конструктор
     private val encryptionService: EncryptionService,
-    // Добавляем в конструктор
     private val fileTransferService: FileTransferService,
-// Добавляем в конструктор
-    private val audioViewModel: AudioViewModel
-
+    private val audioRecorder: AudioRecorder,
+    @ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
-
-
 
     private val _messages = MutableLiveData<List<Message>>()
     val messages: LiveData<List<Message>> = _messages
@@ -41,22 +39,28 @@ class ChatViewModel @Inject constructor(
     private val _isTyping = MutableLiveData<Boolean>(false)
     val isTyping: LiveData<Boolean> = _isTyping
 
+    private val _fileTransferProgress = MutableLiveData<Pair<String, Int>>() // fileId to progress
+    val fileTransferProgress: LiveData<Pair<String, Int>> = _fileTransferProgress
+
+    private val _receivedFiles = MutableLiveData<List<FileInfo>>()
+    val receivedFiles: LiveData<List<FileInfo>> = _receivedFiles
+
     private var currentContact: String = ""
 
     init {
         observeWebSocket()
     }
 
-    // Добавляем методы для голосовых сообщений
-    fun sendVoiceMessage(contactName: String, audioData: String, duration: Int) {
+    // Методы для голосовых сообщений
+    fun sendVoiceMessage(contactName: String, audioData: ByteArray, duration: Int, messageId: String? = null) {
         viewModelScope.launch {
-            val messageId = UUID.randomUUID().toString()
+            val finalMessageId = messageId ?: UUID.randomUUID().toString()
 
             val newMessage = Message(
-                id = messageId,
+                id = finalMessageId,
                 contactName = contactName,
                 content = "🎤 Голосовое сообщение",
-                timestamp = Date(),
+                timestamp = System.currentTimeMillis(),
                 type = MessageType.SENT,
                 isVoiceMessage = true,
                 voiceMessageInfo = VoiceMessageInfo(
@@ -69,7 +73,7 @@ class ChatViewModel @Inject constructor(
             messageRepository.insertMessage(newMessage)
 
             // Отправляем через WebSocket
-            webSocketRepository.sendVoiceMessage(contactName, audioData, duration, messageId)
+            webSocketRepository.sendVoiceMessage(contactName, audioData, duration, finalMessageId)
 
             // Обновляем UI
             val currentMessages = _messages.value.orEmpty().toMutableList()
@@ -88,29 +92,17 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-
-    // Добавляем новые LiveData
-    private val _fileTransferProgress = MutableLiveData<Pair<String, Int>>() // fileId to progress
-    val fileTransferProgress: LiveData<Pair<String, Int>> = _fileTransferProgress
-
-    private val _receivedFiles = MutableLiveData<List<FileInfo>>()
-    val receivedFiles: LiveData<List<FileInfo>> = _receivedFiles
-
     // Метод для отправки файла
     fun sendFile(contactName: String, fileUri: android.net.Uri) {
         viewModelScope.launch {
-            val fileInfo = com.example.aagnar.util.FileManager.getFileInfo(
-                androidx.core.content.ContextProvider.getApplicationContext(),
-                fileUri
-            )
-
+            val fileInfo = com.example.aagnar.util.FileManager.getFileInfo(context, fileUri)
             if (fileInfo != null) {
                 val messageId = UUID.randomUUID().toString()
                 val newMessage = Message(
                     id = messageId,
                     contactName = contactName,
                     content = "📎 ${fileInfo.name}",
-                    timestamp = Date(),
+                    timestamp = System.currentTimeMillis(),
                     type = MessageType.SENT,
                     hasAttachment = true,
                     fileInfo = FileInfo(
@@ -145,15 +137,13 @@ class ChatViewModel @Inject constructor(
     // Метод для получения файла
     fun downloadFile(messageId: String, fileInfo: FileInfo) {
         viewModelScope.launch {
-            // TODO: Реализовать скачивание файла
-            // Пока просто открываем если файл локальный
             fileInfo.uri?.let { uri ->
                 // Открываем файл
                 val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
                     setDataAndType(uri, fileInfo.type)
                     addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
-                androidx.core.content.ContextProvider.getApplicationContext().startActivity(intent)
+                context.startActivity(intent)
             }
         }
     }
@@ -167,12 +157,10 @@ class ChatViewModel @Inject constructor(
 
             // Подключаемся к WebSocket если еще не подключены
             if (webSocketRepository.getConnectionState()?.value != true) {
-                val prefs = android.preference.PreferenceManager.getDefaultSharedPreferences(
-                    androidx.core.content.ContextProvider.getApplicationContext()
-                )
+                val prefs = PreferenceManager.getDefaultSharedPreferences(context)
                 val username = prefs.getString("username", "") ?: ""
                 if (username.isNotEmpty()) {
-                    webSocketRepository.connect(username)
+                    webSocketRepository.connect()
                 }
             }
         }
@@ -195,7 +183,7 @@ class ChatViewModel @Inject constructor(
                 id = messageId,
                 contactName = contactName,
                 content = finalContent,
-                timestamp = Date(),
+                timestamp = System.currentTimeMillis(),
                 type = MessageType.SENT,
                 isDelivered = false,
                 isEncrypted = encryptionService.hasEncryptionKey(contactName)
@@ -208,7 +196,16 @@ class ChatViewModel @Inject constructor(
             if (encryptionService.hasEncryptionKey(contactName)) {
                 webSocketRepository.sendEncryptedMessage(contactName, finalContent, messageId)
             } else {
-                webSocketRepository.sendMessage(contactName, finalContent, messageId)
+                // Создать JSON сообщение
+                val messageJson = """
+    {
+        "to": "$contactName",
+        "content": "$finalContent", 
+        "messageId": "$messageId"
+    }
+""".trimIndent()
+
+                webSocketRepository.sendMessage(messageJson)
             }
 
             // Обновляем UI
@@ -231,8 +228,8 @@ class ChatViewModel @Inject constructor(
                     id = UUID.randomUUID().toString(),
                     contactName = contactName,
                     content = "🔒 Безопасное соединение установлено",
-                    timestamp = Date(),
-                    type = MessageType.SYSTEM,
+                    timestamp = System.currentTimeMillis(),
+                    type = MessageType.TEXT,
                     isDelivered = true
                 )
 
@@ -253,10 +250,8 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             messageRepository.markMessageAsRead(messageId)
 
-
             if (currentContact.isNotEmpty()) {
                 webSocketRepository.sendReadReceipt(currentContact, messageId)
-
             }
         }
     }
@@ -271,39 +266,48 @@ class ChatViewModel @Inject constructor(
 
         viewModelScope.launch {
             // Наблюдаем за входящими сообщениями
-            webSocketRepository.observeMessages()?.collect { newMessages ->
+            webSocketRepository.observeMessages()?.collect { messageJson ->
+                try {
+                    // Парсим JSON в объект Message
+                    val message = parseMessageFromJson(messageJson)
 
-                if (newMessages.isNotEmpty()) {
-                    val relevantMessages = newMessages.filter { it.contactName == currentContact }
-
-                    if (relevantMessages.isNotEmpty()) {
+                    if (message.contactName == currentContact) {
                         // Сохраняем в базу данных
-                        relevantMessages.forEach { message ->
-                            viewModelScope.launch {
-                                messageRepository.createDirectMessage(message)
-
-
-                            }
+                        viewModelScope.launch {
+                            messageRepository.insertMessage(message)
                         }
 
                         // Обновляем UI
                         val currentMessages = _messages.value.orEmpty().toMutableList()
-                        currentMessages.addAll(relevantMessages)
+                        currentMessages.add(message)
                         _messages.value = currentMessages
 
                         // Помечаем как прочитанные
-                        relevantMessages.forEach { message ->
-                            markMessageAsRead(message.id)
-                        }
+                        markMessageAsRead(message.id)
                     }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         }
     }
 
+    private fun parseMessageFromJson(json: String): Message {
+        // TODO: Реализовать парсинг JSON в Message
+        // Временная заглушка
+        return Message(
+            id = UUID.randomUUID().toString(),
+            contactName = "unknown",
+            content = json,
+            timestamp = System.currentTimeMillis(),
+            type = MessageType.RECEIVED
+        )
+    }
+
     override fun onCleared() {
         super.onCleared()
-        webSocketRepository.disconnect()
-
-            }
+        viewModelScope.launch {
+            webSocketRepository.disconnect()
+        }
+    }
 }

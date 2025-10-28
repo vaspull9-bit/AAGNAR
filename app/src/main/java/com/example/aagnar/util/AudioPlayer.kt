@@ -3,12 +3,13 @@ package com.example.aagnar.util
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
+// import javax.inject.Inject
 
-class AudioPlayer {
+class AudioPlayer () {
 
     private var mediaPlayer: MediaPlayer? = null
     private var currentFile: String? = null
-    private var isPlaying = false
+    private var isPlaying = false // Изменили на var
     private var progressCallback: ((Int, Int) -> Unit)? = null
     private val handler = Handler(Looper.getMainLooper())
     private val progressRunnable = object : Runnable {
@@ -33,7 +34,7 @@ class AudioPlayer {
                 setDataSource(filePath)
                 setOnPreparedListener {
                     start()
-                    isPlaying = true
+                    this@AudioPlayer.isPlaying = true // Теперь это работает
                     handler.post(progressRunnable)
                 }
                 setOnCompletionListener {
@@ -57,7 +58,7 @@ class AudioPlayer {
         mediaPlayer?.let { player ->
             if (player.isPlaying) {
                 player.pause()
-                isPlaying = false
+                isPlaying = false // И здесь тоже работает
                 handler.removeCallbacks(progressRunnable)
             }
         }
@@ -67,7 +68,7 @@ class AudioPlayer {
         mediaPlayer?.let { player ->
             if (!player.isPlaying && currentFile != null) {
                 player.start()
-                isPlaying = true
+                isPlaying = true // И здесь
                 handler.post(progressRunnable)
             }
         }
@@ -82,7 +83,7 @@ class AudioPlayer {
         }
         mediaPlayer = null
         currentFile = null
-        isPlaying = false
+        isPlaying = false // И здесь
         handler.removeCallbacks(progressRunnable)
         progressCallback?.invoke(0, 0)
     }

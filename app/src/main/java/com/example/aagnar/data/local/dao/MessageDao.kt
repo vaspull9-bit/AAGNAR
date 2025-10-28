@@ -8,13 +8,13 @@ import java.util.Date
 @Dao
 interface MessageDao {
 
-    @Query("SELECT * FROM message WHERE contactName = :contactName ORDER BY timestamp DESC LIMIT :limit OFFSET :offset")
+    @Query("SELECT * FROM messages WHERE contactName = :contactName ORDER BY timestamp DESC LIMIT :limit OFFSET :offset")
     suspend fun getMessagesPaginated(contactName: String, limit: Int, offset: Int): List<MessageEntity>
 
-    @Query("SELECT * FROM message WHERE contactName = :contactName ORDER BY timestamp DESC LIMIT :pageSize")
+    @Query("SELECT * FROM messages WHERE contactName = :contactName ORDER BY timestamp DESC LIMIT :pageSize")
     fun getMessagesFlow(contactName: String, pageSize: Int): Flow<List<MessageEntity>>
 
-    @Query("SELECT COUNT(*) FROM message WHERE contactName = :contactName")
+    @Query("SELECT COUNT(*) FROM messages WHERE contactName = :contactName")
     suspend fun getMessageCount(contactName: String): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -26,9 +26,19 @@ interface MessageDao {
     @Delete
     suspend fun deleteMessages(messages: List<MessageEntity>)
 
-    @Query("DELETE FROM message WHERE timestamp < :olderThan AND contactName = :contactName")
+    @Query("DELETE FROM messages WHERE timestamp < :olderThan AND contactName = :contactName")
     suspend fun deleteOldMessages(contactName: String, olderThan: Date)
 
-    @Query("SELECT * FROM message WHERE contactName = :contactName AND timestamp BETWEEN :start AND :end")
+    @Query("SELECT * FROM messages WHERE contactName = :contactName AND timestamp BETWEEN :start AND :end")
     suspend fun getMessagesInRange(contactName: String, start: Date, end: Date): List<MessageEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMessage(message: MessageEntity)
+
+    @Query("SELECT * FROM messages WHERE contactName = :contactName ORDER BY timestamp ASC")
+    suspend fun getMessagesByContact(contactName: String): List<MessageEntity>
+
+    @Query("UPDATE messages SET isRead = 1 WHERE id = :messageId")
+    suspend fun markAsRead(messageId: String)
+
 }

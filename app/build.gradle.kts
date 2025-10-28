@@ -10,14 +10,27 @@ android {
     namespace = "com.example.aagnar"
     compileSdk = 34
 
+    // Добавьте эту строку
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         manifestPlaceholders["appAuthRedirectScheme"] = "com.example.aagnar"
         applicationId = "com.example.aagnar"
         minSdk = 24
         targetSdk = 34
         versionCode = 4
-        versionName = "4.0.7"
+        versionName = "4.0.12"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
+
+        // Кастомные поля для ВСЕХ сборок
+        buildConfigField("boolean", "ENABLE_ANALYTICS", "true")
+        buildConfigField("long", "TIMEOUT_DURATION", "30000L")
+        buildConfigField("String", "APP_VERSION", "\"${versionName}\"")
+
 
         ndk {
             abiFilters.add("arm64-v8a")
@@ -34,6 +47,19 @@ android {
     }
 
     buildTypes {
+
+
+        debug {
+            // Можно добавить кастомные поля
+            buildConfigField("String", "API_URL", "\"https://api.debug.com\"")
+            buildConfigField("boolean", "ENABLE_ANALYTICS", "false") // отключаем аналитику в debug
+        }
+        release {
+            buildConfigField("String", "API_URL", "\"https://api.prod.com\"")
+            buildConfigField("boolean", "ENABLE_ANALYTICS", "true") // включаем аналитику в release
+        }
+
+
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -131,6 +157,11 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
+    // ROOM
+    // implementation ("androidx.room:room-runtime:2.6.0")
+    // kapt ("androidx.room:room-compiler:2.6.0")
+    // implementation ("androidx.room:room-ktx:2.6.0")
+
     // Security
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
@@ -143,10 +174,12 @@ dependencies {
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
+    implementation("androidx.hilt:hilt-work:1.2.0")
     kapt("com.google.dagger:hilt-compiler:2.51.1")
 
     // ДОБАВЬТЕ ЭТУ СТРОКУ ДЛЯ HILT WORK MANAGER:
-    implementation("androidx.hilt:hilt-work:1.2.0")
+    // KAPT
+
     kapt("androidx.hilt:hilt-compiler:1.2.0")
 
     // WorkManager
@@ -170,6 +203,10 @@ dependencies {
 
     // WebRTC
     implementation("io.getstream:stream-webrtc-android:1.1.1")
-
     implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("androidx.tracing:tracing-ktx:1.2.0")
+
+
+
 }

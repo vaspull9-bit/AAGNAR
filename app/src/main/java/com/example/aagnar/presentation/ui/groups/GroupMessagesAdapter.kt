@@ -12,6 +12,7 @@ import com.example.aagnar.domain.model.GroupMessage
 import com.example.aagnar.domain.model.MessageType
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.absoluteValue
 
 class GroupMessagesAdapter(
     private var messages: List<GroupMessage>,

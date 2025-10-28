@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import de.hdodenhof.circleimageview.CircleImageView
 import com.example.aagnar.R
 import com.example.aagnar.domain.model.Chat
+import kotlin.math.absoluteValue
 
 class ChatsAdapter(
     private var chats: List<Chat>,

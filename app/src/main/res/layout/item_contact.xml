@@ -25,7 +25,9 @@
                 android:layout_height="48dp"
                 android:src="@drawable/ic_person"
                 app:civ_border_width="2dp"
-                app:civ_border_color="@color/surface" />
+                app:civ_border_color="@color/surface"
+                app:tint="@color/text_secondary"
+                />
 
             <!-- Индикатор статуса -->
             <View

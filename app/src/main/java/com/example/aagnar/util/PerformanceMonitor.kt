@@ -3,14 +3,16 @@ package com.example.aagnar.util
 import android.os.Build
 import android.util.Log
 import com.example.aagnar.BuildConfig
+import javax.inject.Inject
+import javax.inject.Singleton
 
-/**
- * Монитор производительности для AAGNAR v4.0.6-1
- * Оптимизирован для P2P коммуникаций и реального времени
- */
-object PerformanceMonitor {
+@Singleton
+class PerformanceMonitor @Inject constructor() {
 
-    private const val WARNING_THRESHOLD_MS = 16L // 60 FPS
+    companion object {
+        private const val WARNING_THRESHOLD_MS = 16L // 60 FPS
+    }
+
     private val performanceData = mutableMapOf<String, Long>()
 
     fun <T> measure(blockName: String, block: () -> T): T {

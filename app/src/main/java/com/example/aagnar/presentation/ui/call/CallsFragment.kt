@@ -7,9 +7,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.aagnar.R
 import com.example.aagnar.util.PerformanceMonitor
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint  // ← ДОБАВЬТЕ ЭТУ АННОТАЦИЮ!
 class CallsFragment : Fragment() {
 
+    // Инжектируйте PerformanceMonitor через Hilt
+    @Inject
+    lateinit var performanceMonitor: PerformanceMonitor
     private lateinit var emptyState: View
 
     override fun onCreateView(
@@ -17,28 +23,28 @@ class CallsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        PerformanceMonitor.measure("CallsFragment.onCreateView") {
-            return inflater.inflate(R.layout.fragment_calls, container, false)
+        return performanceMonitor.measure("CallsFragment.onCreateView") {
+            inflater.inflate(R.layout.fragment_calls, container, false)
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        PerformanceMonitor.measure("CallsFragment.onViewCreated") {
+        performanceMonitor.measure("calls_load") {
             initViews(view)
             loadCallsHistory()
         }
     }
 
     private fun initViews(view: View) {
-        PerformanceMonitor.measure("CallsFragment.initViews") {
+        performanceMonitor.measure("CallsFragment.initViews") {
             emptyState = view.findViewById(R.id.emptyState)
         }
     }
 
     private fun loadCallsHistory() {
-        PerformanceMonitor.measure("CallsFragment.loadCallsHistory") {
+        performanceMonitor.measure("CallsFragment.loadCallsHistory") {
             // TODO: Реализовать загрузку истории звонков
             showEmptyState(true)
         }
@@ -50,6 +56,6 @@ class CallsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        PerformanceMonitor.logPerformanceEvent("CallsFragment resumed")
+        performanceMonitor.logPerformanceEvent("CallsFragment resumed")
     }
 }

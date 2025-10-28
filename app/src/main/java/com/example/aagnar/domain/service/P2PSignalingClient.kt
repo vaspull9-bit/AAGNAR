@@ -33,12 +33,12 @@ class P2PSignalingClient @Inject constructor() {
             try {
                 withContext(Dispatchers.Main) {
                     _connectionState.value = "Connecting..."
-                    _messages.value += "🔄 Connecting to $serverIp:8887"
+                    _messages.value += "🔄 Connecting to $serverIp:8889"
                 }
 
                 socket = Socket()
                 withTimeout(10000) {
-                    socket!!.connect(java.net.InetSocketAddress(serverIp, 8887), 10000)
+                    socket!!.connect(java.net.InetSocketAddress(serverIp, 8889), 10000)
                 }
 
                 writer = PrintWriter(socket!!.getOutputStream(), true)

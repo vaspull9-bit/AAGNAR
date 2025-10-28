@@ -6,11 +6,20 @@
     android:orientation="vertical"
     android:background="@color/background">
 
+    <!-- SearchView для поиска контактов -->
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:queryHint="Поиск контактов" />
+
     <!-- SwipeRefreshLayout для обновления -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -39,7 +48,7 @@
                     android:layout_width="120dp"
                     android:layout_height="120dp"
                     android:src="@drawable/ic_contacts_empty"
-                    android:tint="@color/text_secondary" />
+                    app:tint="@color/text_secondary" />
 
                 <TextView
                     android:layout_width="wrap_content"

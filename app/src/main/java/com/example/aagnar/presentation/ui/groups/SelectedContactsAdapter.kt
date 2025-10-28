@@ -21,7 +21,7 @@ class SelectedContactsAdapter(
         private val removeButton: ImageButton = itemView.findViewById(R.id.removeButton)
 
         fun bind(contact: Contact) {
-            name.text = contact.username
+            name.text = contact.name
 
             removeButton.setOnClickListener {
                 onRemoveClick(contact)

@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import com.example.aagnar.R
 import java.io.*
 import java.util.*
 
@@ -25,8 +26,20 @@ object FileManager {
             val cursor = contentResolver.query(uri, null, null, null, null)
             cursor?.use {
                 if (it.moveToFirst()) {
-                    val displayName = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                    val size = it.getLong(it.getColumnIndex(OpenableColumns.SIZE))
+                    val displayNameColumn = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    val displayName = if (displayNameColumn >= 0) {
+                        it.getString(displayNameColumn)
+                    } else {
+                        // Fallback: получить имя из URI или использовать default
+                        uri.lastPathSegment ?: "unknown_file"
+                    }
+
+                    val sizeColumn = it.getColumnIndex(OpenableColumns.SIZE)
+                    val size = if (sizeColumn >= 0) {
+                        it.getLong(sizeColumn)
+                    } else {
+                        -1L // или 0L, если размер неизвестен
+                    }
                     val mimeType = contentResolver.getType(uri) ?: "application/octet-stream"
 
                     FileInfo(

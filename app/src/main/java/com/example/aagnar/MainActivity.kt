@@ -1,4 +1,4 @@
-//AAGNAR  v4.0.7
+//AAGNAR  v4.0.12
 package com.example.aagnar
 
 import android.content.Intent
@@ -165,8 +165,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun showAbout() {
         android.app.AlertDialog.Builder(this)
-            .setTitle("AAGNAR v4.0.7")
-            .setMessage("P2P клиент, DeeR Tuund (C) 2025\n\nОсновано на JAMI")
+            .setTitle("AAGNAR v4.0.12")
+            .setMessage("P2P клиент, DeeR Tuund (C) 2025\n\nСвободное ПО GNU GPL-3.0-")
             .setPositiveButton("OK", null)
             .show()
     }

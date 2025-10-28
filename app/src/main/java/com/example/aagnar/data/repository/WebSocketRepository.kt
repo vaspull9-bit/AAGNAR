@@ -3,19 +3,77 @@ package com.example.aagnar.data.repository
 import android.content.Context
 import com.example.aagnar.data.remote.WebSocketClient
 import com.example.aagnar.domain.model.Message
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOf
 import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.example.aagnar.domain.model.FileInfo // ← ДОБАВЬ ЭТУ СТРОКУ
+import com.example.aagnar.domain.model.FileInfo
+import dagger.hilt.android.qualifiers.ApplicationContext
+import com.example.aagnar.domain.repository.WebSocketRepository as DomainWebSocketRepository
 
 @Singleton
 class WebSocketRepository @Inject constructor(
-    private val context: Context
-) {
+    @ApplicationContext private val context: Context  // Добавьте @ApplicationContext
+) : DomainWebSocketRepository {
+
     private var webSocketClient: WebSocketClient? = null
 
-    fun sendFileChunk(
+    override suspend fun sendEncryptedMessage(contactName: String, encryptedContent: String, messageId: String) {
+        sendMessage(contactName, encryptedContent, messageId)
+    }
+
+    override suspend fun connect() {
+        // TODO: Реализовать suspend connect с username
+        // Временная реализация:
+        webSocketClient?.connect()
+    }
+
+    override suspend fun disconnect() {
+        webSocketClient?.disconnect()
+        webSocketClient = null
+    }
+
+    override fun isConnected(): Flow<Boolean> {
+        return webSocketClient?.connectionState ?: flowOf(false)
+    }
+
+    override suspend fun sendMessage(message: String) {
+        // TODO: Реализовать отправку простого сообщения без указания получателя
+        // Временная реализация:
+        webSocketClient?.sendMessage("unknown", message, System.currentTimeMillis().toString())
+    }
+
+    override fun observeMessages(): Flow<String> {
+        // TODO: Реализовать Flow сообщений
+        return flowOf()
+    }
+
+    override suspend fun sendReadReceipt(contactName: String, messageId: String) {
+        webSocketClient?.sendReadReceipt(contactName, messageId)
+    }
+
+    override suspend fun sendVoiceMessage(contactName: String, audioData: ByteArray, duration: Int, messageId: String) {
+        // TODO: Реализовать отправку голосового сообщения
+        // Временная заглушка для компиляции
+    }
+
+    override fun getConnectionState(): StateFlow<Boolean>? {
+        return webSocketClient?.connectionState
+    }
+
+    override fun getIncomingMessages(): StateFlow<List<Message>>? {
+        return webSocketClient?.incomingMessages
+    }
+
+    override fun sendTypingIndicator(toUser: String, isTyping: Boolean) {
+        webSocketClient?.sendTypingIndicator(toUser, isTyping)
+    }
+
+    // Существующие методы
+
+    override fun sendFileChunk(
         toUser: String,
         fileInfo: FileInfo,
         chunkData: ByteArray,
@@ -25,44 +83,22 @@ class WebSocketRepository @Inject constructor(
         webSocketClient?.sendFileChunk(toUser, fileInfo, chunkData, chunkIndex, totalChunks)
     }
 
-    fun connect(username: String) {
+    override  fun connect(username: String) {
         webSocketClient = WebSocketClient(context, username).apply {
             connect()
         }
     }
 
-    fun disconnect() {
-        webSocketClient?.disconnect()
-        webSocketClient = null
-    }
-
-    fun getConnectionState(): StateFlow<Boolean>? {
-        return webSocketClient?.connectionState
-    }
-
-    fun getIncomingMessages(): StateFlow<List<Message>>? {
-        return webSocketClient?.incomingMessages
-    }
-
-    fun sendMessage(toUser: String, content: String, messageId: String) {
+    override fun sendMessage(toUser: String, content: String, messageId: String) {
         webSocketClient?.sendMessage(toUser, content, messageId)
     }
 
-    fun sendTypingIndicator(toUser: String, isTyping: Boolean) {
-        webSocketClient?.sendTypingIndicator(toUser, isTyping)
-    }
+    // WebRTC методы
 
-    fun sendReadReceipt(toUser: String, messageId: String) {
-        webSocketClient?.sendReadReceipt(toUser, messageId)
-    }
-
-    // Добавляем методы для WebRTC
-
-    fun sendWebRTCMessage(message: String) {
+    override fun sendWebRTCMessage(message: String) {
         // TODO: Отправлять сообщения на WebRTC signaling server
     }
 
-    // Добавляем обработку WebRTC сообщений в существующий WebSocket клиент
     private fun handleWebRTCMessage(json: JSONObject) {
         val type = json.getString("type")
 
@@ -93,5 +129,4 @@ class WebSocketRepository @Inject constructor(
             }
         }
     }
-
 }

@@ -10,6 +10,7 @@ import com.example.aagnar.domain.repository.GroupRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.example.aagnar.domain.model.Status
 
 @HiltViewModel
 class CreateGroupViewModel @Inject constructor(
@@ -29,9 +30,9 @@ class CreateGroupViewModel @Inject constructor(
         viewModelScope.launch {
             // TODO: Загрузить контакты из репозитория
             allContacts = listOf(
-                Contact("user123", Status.ONLINE),
-                Contact("alice", Status.ONLINE),
-                Contact("bob", Status.OFFLINE)
+                Contact(name = "user123", address = "", status = Status.ONLINE),  // ← name вместо username
+                Contact(name = "alice", address = "", status = Status.ONLINE),
+                Contact(name = "bob", address = "", status = Status.OFFLINE)
             )
             _contacts.value = allContacts
         }
@@ -41,7 +42,7 @@ class CreateGroupViewModel @Inject constructor(
         val filtered = if (query.isEmpty()) {
             allContacts
         } else {
-            allContacts.filter { it.username.contains(query, ignoreCase = true) }
+            allContacts.filter { it.name.contains(query, ignoreCase = true) }
         }
         _contacts.value = filtered
     }

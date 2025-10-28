@@ -12,11 +12,11 @@ import org.java_websocket.handshake.ServerHandshake
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URI
-import java.util.*
+import java.util.LinkedList
+import java.util.Timer
+import java.util.TimerTask
+import java.util.UUID
 import java.util.concurrent.Executors
-import java.util.LinkedList // ← ДОБАВЬТЕ ЭТУ СТРОКУ
-import java.util.Date // ← ДОБАВЬТЕ ЭТУ СТРОКУ
-import com.example.aagnar.domain.model.FileInfo
 
 class WebSocketClient(
     private val context: Context,
@@ -377,49 +377,12 @@ class WebSocketClient(
         }
     }
 
-//    private fun handleIncomingMessage(json: JSONObject) {
-//        val fromUser = json.getString("from")
-//        val content = json.getString("content")
-//        val messageId = json.getString("message_id")
-//        val timestamp = json.getLong("timestamp")
-//        val fileName = json.getString("file_name")
-//        val fileType = json.getString("file_type")
-//        val fileSize = json.getLong("file_size")
-//        val fileId = json.getString("file_id")
-//        val chunkIndex = json.getInt("chunk_index")
-//        val totalChunks = json.getInt("total_chunks")
-//
-//        // Создаем fileInfo если модель требует его
-//        val fileInfo = com.example.aagnar.domain.model.FileInfo(
-//            name = fileName,
-//            size = fileSize,
-//            type = fileType,
-//            fileId = fileId,
-//            transferProgress = ((chunkIndex + 1) * 100 / totalChunks)
-//        )
-//
-//        val message = Message(
-//            id = fileId + "_chunk_" + chunkIndex,
-//            contactName = fromUser,
-//            content = "📎 $fileName",
-//            timestamp = System.currentTimeMillis(), // ← ИСПРАВЛЕНО
-//            type = com.example.aagnar.domain.model.MessageType.RECEIVED,
-//            hasAttachment = true,
-//            fileInfo = fileInfo
-//        )
-//
-//        addToIncomingMessages(message)
-//        Log.d(TAG, "Received message from $fromUser: ${content.take(50)}...")
-//    }
-
     private fun handleIncomingMessage(json: JSONObject) {
         try {
             val fromUser = json.getString("from")
             val content = json.getString("content")
             val messageId = json.getString("message_id")
             val timestamp = json.getLong("timestamp")
-
-
 
             val message = Message(
                 id = messageId,
@@ -428,7 +391,6 @@ class WebSocketClient(
                 timestamp = timestamp,
                 type = com.example.aagnar.domain.model.MessageType.RECEIVED,
                 isDelivered = true
-
             )
 
             addToIncomingMessages(message)
@@ -475,7 +437,7 @@ class WebSocketClient(
 
             val voiceMessageInfo = com.example.aagnar.domain.model.VoiceMessageInfo(
                 duration = duration,
-                audioData = audioData
+                audioData = audioData.toByteArray()
             )
 
             val message = Message(
@@ -630,10 +592,15 @@ class WebSocketClient(
 
     // Вспомогательные методы
     private fun getDeviceId(): String {
-        return android.provider.Settings.Secure.getString(
-            context.contentResolver,
-            android.provider.Settings.Secure.ANDROID_ID
-        ) ?: "unknown_device"
+        val sharedPrefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        var deviceId = sharedPrefs.getString("device_id", null)
+
+        if (deviceId == null) {
+            deviceId = "device_${UUID.randomUUID()}"
+            sharedPrefs.edit().putString("device_id", deviceId).apply()
+        }
+
+        return deviceId
     }
 
     private fun getAppVersion(): String {

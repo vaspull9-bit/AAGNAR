@@ -5,12 +5,13 @@ import android.net.Uri
 import com.example.aagnar.data.repository.WebSocketRepository
 import com.example.aagnar.domain.model.FileInfo
 import com.example.aagnar.util.FileManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class FileTransferService @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val webSocketRepository: WebSocketRepository
 ) {
 

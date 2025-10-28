@@ -7,7 +7,7 @@ import androidx.room.Index
 import java.util.Date
 
 @Entity(
-    tableName = "message",
+    tableName = "messages",
     indices = [
         Index(value = ["contactName", "timestamp"]),
         Index(value = ["timestamp"]),

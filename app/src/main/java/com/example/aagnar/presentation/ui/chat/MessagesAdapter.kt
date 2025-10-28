@@ -74,9 +74,8 @@ class MessagesAdapter(
         return when {
             message.isVoiceMessage -> TYPE_VOICE
             message.hasAttachment -> TYPE_FILE
-            message.type == MessageType.SYSTEM -> TYPE_SYSTEM
             message.type == MessageType.SENT -> TYPE_TEXT_SENT
-            else -> TYPE_TEXT_RECEIVED
+           else -> TYPE_TEXT_RECEIVED
         }
     }
 
@@ -87,7 +86,7 @@ class MessagesAdapter(
 
         fun bind(message: Message) {
             messageText.text = message.content
-            timeText.text = formatTime(message.timestamp.time)
+            timeText.text = formatTime(message.timestamp)
             updateStatus(message)
 
             itemView.setOnClickListener {
@@ -97,9 +96,9 @@ class MessagesAdapter(
 
         fun updateStatus(message: Message) {
             val statusRes = when {
-                message.isRead -> R.drawable.ic_read
+                message.isRead -> R.drawable.ic_delivered  // ВРЕМЕННОЕ РЕШЕНИЕ
                 message.isDelivered -> R.drawable.ic_delivered
-                else -> R.drawable.ic_sent
+                else -> R.drawable.ic_send  // ИСПОЛЬЗУЕМ СУЩЕСТВУЮЩИЙ РЕСУРС
             }
             statusIndicator.setImageResource(statusRes)
         }
@@ -112,9 +111,9 @@ class MessagesAdapter(
 
         fun bind(message: Message) {
             messageText.text = message.content
-            timeText.text = formatTime(message.timestamp.time)
+            timeText.text = formatTime(message.timestamp)
 
-            val avatarColor = getColorForName(message.contactName)
+            val avatarColor = getColorForName(message.contactName, itemView.context)
             avatar.setCircleBackgroundColor(avatarColor)
 
             itemView.setOnClickListener {
@@ -205,7 +204,8 @@ class MessagesAdapter(
                         seekBar.progress = currentPos
                         durationText.text = formatVoiceDuration(currentPos / 1000)
                         val amplitude = (Math.random() * 0.8 + 0.2).toFloat()
-                        waveView.addAmplitude(amplitude)
+                       // waveView.addAmplitude(amplitude)
+
                     }
                 }
             }
@@ -224,7 +224,7 @@ class MessagesAdapter(
         fun updatePlayingState(isPlaying: Boolean) {
             updatePlayButton(isPlaying)
             if (!isPlaying) {
-                waveView.clear()
+             //   waveView.clear()
             }
         }
     }
@@ -235,7 +235,7 @@ class MessagesAdapter(
 
         fun bind(message: Message) {
             systemText.text = message.content
-            timeText.text = formatTime(message.timestamp.time)
+            timeText.text = formatTime(message.timestamp)
 
             itemView.setOnClickListener {
                 onMessageClick(message)
@@ -342,7 +342,7 @@ class MessagesAdapter(
         return String.format("%d:%02d", minutes, remainingSeconds)
     }
 
-    private fun getColorForName(name: String): Int {
+    private fun getColorForName(name: String, context: android.content.Context): Int {
         val colors = listOf(
             R.color.avatar_blue,
             R.color.avatar_green,
@@ -351,7 +351,7 @@ class MessagesAdapter(
             R.color.avatar_red
         )
         val index = name.hashCode().absoluteValue % colors.size
-        return ContextCompat.getColor(itemView.context, colors[index])
+        return ContextCompat.getColor(context, colors[index])
     }
 
     class VoiceWaveView @JvmOverloads constructor(

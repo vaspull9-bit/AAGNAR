@@ -50,11 +50,18 @@ class RegistrationActivity : AppCompatActivity() {
     }
 
     private fun handleRegistrationResult(result: String, username: String, nickname: String, password: String) {
+        println("🟢 [REG ACTIVITY] Received result: $result")
+
         try {
             val json = JSONObject(result)
-            when (json.getString("type")) {
+            val type = json.getString("type")
+            println("🟢 [REG ACTIVITY] Result type: $type")
+
+            when (type) {
                 "success" -> {
-                    // Сохраняем данные и переходим в главное приложение
+                    println("🟢 [REG ACTIVITY] Registration successful! Starting MainActivity...")
+
+                    // Сохраняем данные
                     val prefs = getSharedPreferences("user", MODE_PRIVATE)
                     prefs.edit()
                         .putString("username", username)
@@ -63,25 +70,64 @@ class RegistrationActivity : AppCompatActivity() {
                         .putBoolean("registered", true)
                         .apply()
 
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
+                    println("🟢 [REG ACTIVITY] User data saved, starting MainActivity...")
+
+                    // Проверяем что MainActivity существует
+                    try {
+                        val intent = Intent(this, MainActivity::class.java)
+                        println("🟢 [REG ACTIVITY] Intent created: $intent")
+                        startActivity(intent)
+                        println("🟢 [REG ACTIVITY] startActivity called")
+                        finish()
+                        println("🟢 [REG ACTIVITY] finish called")
+                    } catch (e: Exception) {
+                        println("🔴 [REG ACTIVITY] Error starting MainActivity: ${e.message}")
+                        e.printStackTrace()
+
+                        // Показываем ошибку пользователю
+                        runOnUiThread {
+                            android.app.AlertDialog.Builder(this)
+                                .setTitle("Ошибка перехода")
+                                .setMessage("Не удалось открыть главное приложение: ${e.message}")
+                                .setPositiveButton("OK", null)
+                                .show()
+                        }
+                    }
                 }
                 "error" -> {
-                    // Показываем ошибку
                     val errorMessage = json.getString("message")
-                    android.app.AlertDialog.Builder(this)
-                        .setTitle("Ошибка регистрации")
-                        .setMessage(errorMessage)
-                        .setPositiveButton("OK", null)
-                        .show()
+                    println("🔴 [REG ACTIVITY] Registration error: $errorMessage")
+
+                    runOnUiThread {
+                        android.app.AlertDialog.Builder(this)
+                            .setTitle("Ошибка регистрации")
+                            .setMessage(errorMessage)
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
+                }
+                else -> {
+                    println("🔴 [REG ACTIVITY] Unknown response type: $type")
+
+                    runOnUiThread {
+                        android.app.AlertDialog.Builder(this)
+                            .setTitle("Ошибка")
+                            .setMessage("Неизвестный ответ от сервера: $type")
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
                 }
             }
         } catch (e: Exception) {
-            android.app.AlertDialog.Builder(this)
-                .setTitle("Ошибка")
-                .setMessage("Неверный ответ от сервера: $result")
-                .setPositiveButton("OK", null)
-                .show()
+            println("🔴 [REG ACTIVITY] JSON parsing error: ${e.message}")
+
+            runOnUiThread {
+                android.app.AlertDialog.Builder(this)
+                    .setTitle("Ошибка")
+                    .setMessage("Неверный ответ от сервера: $result")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
         }
     }
 }

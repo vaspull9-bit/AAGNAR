@@ -4,17 +4,19 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.TextWatcher
 import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.aagnar.R
-import dagger.hilt.android.AndroidEntryPoint
 import com.example.aagnar.domain.model.FileInfo
+import com.example.aagnar.domain.model.Message
+import com.example.aagnar.domain.model.MessageType
+import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ChatActivity : AppCompatActivity() {
@@ -65,7 +67,7 @@ class ChatActivity : AppCompatActivity() {
         setupUI()
         setupRecyclerView()
         setupClickListeners()
-        setupVoiceRecording() // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+        setupVoiceRecording()
         setupTypingListener()
         observeViewModel()
     }
@@ -110,13 +112,42 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        messagesAdapter = MessagesAdapter(emptyList()) { message -> }
-        messagesRecyclerView.apply {
-            layoutManager = LinearLayoutManager(this@ChatActivity).apply {
-                stackFromEnd = true
-            }
-            adapter = messagesAdapter
+        messagesAdapter = MessagesAdapter(
+            messages = emptyList(),
+            onMessageClick = { message ->
+                handleMessageClick(message)
+            },
+            onFileClick = { message ->  // ← ПАРАМЕТР Message
+                handleMessageClick(message)  // ← ИСПОЛЬЗУЕМ СУЩЕСТВУЮЩИЙ МЕТОД
+            },
+            audioViewModel = null  // ← ПЕРЕДАЕМ null ИЛИ СОЗДАЕМ AudioViewModel
+        )
+
+        messagesRecyclerView.layoutManager = LinearLayoutManager(this)
+        messagesRecyclerView.adapter = messagesAdapter
+    }
+
+    private fun handleMessageClick(message: Message) {
+        when (message.type) {
+            MessageType.FILE -> openAttachment(message)
+            MessageType.AUDIO -> playVoiceMessage(message)
+            MessageType.IMAGE -> openAttachment(message)  // ← ИСПОЛЬЗУЕМ СУЩЕСТВУЮЩИЙ МЕТОД
+            MessageType.VIDEO -> openAttachment(message)  // ← ИСПОЛЬЗУЕМ СУЩЕСТВУЮЩИЙ МЕТОД
+
+            else -> showMessageActions(message)
         }
+    }
+
+    private fun openAttachment(message: Message) {
+        // TODO: Открытие вложения
+    }
+
+    private fun playVoiceMessage(message: Message) {
+        // TODO: Воспроизведение голосового сообщения
+    }
+
+    private fun showMessageActions(message: Message) {
+        // TODO: Показать меню действий с сообщением
     }
 
     private fun setupClickListeners() {
@@ -135,7 +166,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun setupTypingListener() {
-        messageInput.addTextChangedListener(object : android.text.TextWatcher {
+        messageInput.addTextChangedListener(object : TextWatcher {
             private var typingTimer: android.os.CountDownTimer? = null
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -196,16 +227,15 @@ class ChatActivity : AppCompatActivity() {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     startRecording()
-                    voiceRecordButton.performClick() // ← ДОБАВЬТЕ ЭТУ СТРОКУ
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     stopRecording()
-                    voiceRecordButton.performClick() // ← И ЭТУ СТРОКУ
                 }
             }
             true
         }
     }
+
     private fun startRecording() {
         isRecording = true
         showRecordingUI()
@@ -268,8 +298,11 @@ class ChatActivity : AppCompatActivity() {
             setDataAndType(fileInfo.uri, fileInfo.type)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        // Используйте applicationContext вместо ContextProvider
-        // applicationContext.startActivity(intent)
+        try {
+            startActivity(intent)
+        } catch (e: Exception) {
+            showMessage("Не удалось открыть файл")
+        }
     }
 
     private fun openFilePicker() {

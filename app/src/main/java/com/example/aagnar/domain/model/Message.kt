@@ -14,6 +14,7 @@ data class Message(
     val timestamp: Long,
     val date: Date = Date(timestamp),
     val type: MessageType = MessageType.RECEIVED,
+    val isRead: Boolean = false,
     val isDelivered: Boolean = false,
     val isEncrypted: Boolean = false,
     val isVoiceMessage: Boolean = false,

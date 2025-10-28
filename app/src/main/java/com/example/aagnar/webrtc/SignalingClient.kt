@@ -2,7 +2,7 @@ package com.example.aagnar.webrtc
 
 import android.content.Context
 import android.util.Log
-import com.example.aagnar.data.remote.WebSocketRepository
+import com.example.aagnar.domain.repository.WebSocketRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONObject
