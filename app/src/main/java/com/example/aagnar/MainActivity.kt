@@ -1,4 +1,4 @@
-//AAGNAR  v4.0.12
+//AAGNAR  v4.2.1
 package com.example.aagnar
 
 import android.content.Intent
@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.aagnar.presentation.adapter.MainPagerAdapter
 import com.example.aagnar.presentation.ui.settings.SettingsFragment
 import com.example.aagnar.util.PerformanceMonitor
@@ -20,7 +21,13 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
+import java.net.Socket
+import java.net.InetSocketAddress
+import android.content.Context  // ← ДОБАВЬТЕ ЭТУ СТРОКУ
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -37,10 +44,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Проверяем зарегистрирован ли пользователь
-        val prefs = getSharedPreferences("user", MODE_PRIVATE)
-        if (!prefs.getBoolean("registered", false)) {
-            startActivity(Intent(this, RegistrationActivity::class.java))
+        // 🔥 ПРОВЕРКА СЕССИИ - ДОБАВИТЬ ЭТИ 6 СТРОК
+        val sessionPrefs = getSharedPreferences("session", Context.MODE_PRIVATE)
+        if (!sessionPrefs.getBoolean("logged_in", false)) {
+            startActivity(Intent(this, AccountSelectionActivity::class.java))
             finish()
             return
         }
@@ -50,6 +57,83 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         initViews()
         setupViewPager()
         setupNavigation()
+        checkServerStatus() // ← ДОБАВИТЬ проверку статуса серверов
+    }
+
+    private fun checkServerStatus() {
+        lifecycleScope.launch {
+            try {
+                val webSocketOk = checkWebSocketServer()
+                val tcpOk = checkTcpServer()
+
+                updateStatusIndicators(webSocketOk, tcpOk)
+
+                // Автоматическая регистрация если серверы доступны
+                if (webSocketOk && tcpOk) {
+                    autoRegisterIfNeeded()
+                }
+            } catch (e: Exception) {
+                updateStatusIndicators(false, false)
+            }
+        }
+    }
+
+    private suspend fun checkWebSocketServer(): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val client = okhttp3.OkHttpClient()
+                val request = okhttp3.Request.Builder()
+                    .url("ws://192.168.88.240:8889")
+                    .build()
+                val webSocket = client.newWebSocket(request, object : okhttp3.WebSocketListener() {})
+                delay(1000)
+                webSocket.close(1000, null)
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+    private suspend fun checkTcpServer(): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val socket = Socket()
+                socket.connect(InetSocketAddress("192.168.88.240", 8887), 3000)
+                socket.close()
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+    private fun updateStatusIndicators(webSocketOk: Boolean, tcpOk: Boolean) {
+        runOnUiThread {
+            // Временное решение - Toast, потом заменим на иконки в тулбаре
+            val status = "WS: ${if (webSocketOk) "🟢" else "🔴"}, TCP: ${if (tcpOk) "🟢" else "🔴"}"
+            Toast.makeText(this, status, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun autoRegisterIfNeeded() {
+        val prefs = getSharedPreferences("user", MODE_PRIVATE)
+        if (!prefs.getBoolean("registered", false)) {
+            lifecycleScope.launch {
+                try {
+                    val registrationClient = com.example.aagnar.data.remote.RegistrationClient()
+                    val username = prefs.getString("username", "user_${System.currentTimeMillis()}") ?: "user_${System.currentTimeMillis()}"
+                    val result = registrationClient.register(username, "auto_password", username)
+
+                    if (result.contains("success")) {
+                        prefs.edit().putBoolean("registered", true).apply()
+                        Toast.makeText(this@MainActivity, "✅ Авторегистрация выполнена", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    // Авторегистрация не обязательна - приложение работает и так
+                }
+            }
+        }
     }
 
     private fun initViews() {
@@ -165,16 +249,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun showAbout() {
         android.app.AlertDialog.Builder(this)
-            .setTitle("AAGNAR v4.0.12")
-            .setMessage("P2P клиент, DeeR Tuund (C) 2025\n\nСвободное ПО GNU GPL-3.0-")
+            .setTitle("AAGNAR v4.2.1")
+            .setMessage("P2P клиент, DeeR Tuund (C) 2025\n\nGNU GPL-3.0-")
             .setPositiveButton("OK", null)
             .show()
     }
 
     private fun logout() {
-        val prefs = getSharedPreferences("user", MODE_PRIVATE)
-        prefs.edit().clear().apply()
-        startActivity(Intent(this, RegistrationActivity::class.java))
+        val sessionPrefs = getSharedPreferences("session", Context.MODE_PRIVATE)
+        sessionPrefs.edit().putBoolean("logged_in", false).apply()
+
+        // НЕ очищаем данные аккаунта!
+        startActivity(Intent(this, AccountSelectionActivity::class.java))
         finish()
     }
 

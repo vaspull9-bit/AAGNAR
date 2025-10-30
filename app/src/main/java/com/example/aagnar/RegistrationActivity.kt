@@ -1,5 +1,6 @@
 package com.example.aagnar
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -68,6 +69,14 @@ class RegistrationActivity : AppCompatActivity() {
                         .putString("nickname", if (nickname.isNotEmpty()) nickname else username)
                         .putString("password", password)
                         .putBoolean("registered", true)
+                        .apply()
+
+                    // 🔥 ДОБАВИТЬ СОХРАНЕНИЕ СЕССИИ
+                    val sessionPrefs = getSharedPreferences("session", Context.MODE_PRIVATE)
+                    sessionPrefs.edit()
+                        .putString("current_account_id", username)
+                        .putBoolean("logged_in", true)
+                        .putLong("session_expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000)
                         .apply()
 
                     println("🟢 [REG ACTIVITY] User data saved, starting MainActivity...")

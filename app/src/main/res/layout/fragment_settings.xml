@@ -13,16 +13,98 @@
         android:textSize="24sp"
         android:textStyle="bold" />
 
+    <!-- Статус серверов -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Настройки P2P будут здесь"
-        android:textSize="16sp"
-        android:layout_marginTop="16dp" />
+        android:text="Статус серверов"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/webSocketStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="WebSocket: проверка..."
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tcpStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="TCP: проверка..."
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/checkServersButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Проверить серверы"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Регистрация -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Регистрация на сервере"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/registrationStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Статус регистрации"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Данные пользователя -->
+    <EditText
+        android:id="@+id/usernameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Логин"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/nicknameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Никнейм (необязательно)"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/passwordInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Пароль"
+        android:inputType="textPassword"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/registerButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Зарегистрироваться на сервере" />
+
+    <!-- Старый RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/settingsRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>

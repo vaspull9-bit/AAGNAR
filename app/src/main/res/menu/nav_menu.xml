@@ -1,27 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/nav_p2p"
-        android:icon="@android:drawable/ic_menu_share"
-        android:title="P2P" />
 
-    <item
-        android:id="@+id/nav_calls"
-        android:icon="@android:drawable/ic_menu_call"
-        android:title="Звонки" />
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_chats"
+            android:icon="@drawable/ic_chat"
+            android:title="Чаты" />
+        <item
+            android:id="@+id/nav_contacts"
+            android:icon="@drawable/ic_contacts"
+            android:title="Контакты" />
+        <item
+            android:id="@+id/nav_calls"
+            android:icon="@drawable/ic_call"
+            android:title="Звонки" />
+    </group>
 
-    <item
-        android:id="@+id/nav_contacts"
-        android:icon="@android:drawable/ic_menu_agenda"
-        android:title="Контакты" />
+    <item android:title="Настройки">
+        <menu>
+            <item
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_settings"
+                android:title="Настройки" />
+            <item
+                android:id="@+id/nav_profile"
+                android:icon="@drawable/ic_profile"
+                android:title="Профиль" />
+        </menu>
+    </item>
 
-    <item
-        android:id="@+id/nav_settings"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:title="Настройки" />
+    <item android:title="Аккаунт">
+        <menu>
+            <!-- 🔥 ЭТОТ ПУНКТ ДОЛЖЕН БЫТЬ -->
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_logout"
+                android:title="Logout" />
+            <item
+                android:id="@+id/nav_about"
+                android:icon="@drawable/ic_info"
+                android:title="О программе" />
+        </menu>
+    </item>
 
-    <item
-        android:id="@+id/nav_about"
-        android:icon="@android:drawable/ic_menu_info_details"
-        android:title="О программе" />
 </menu>
