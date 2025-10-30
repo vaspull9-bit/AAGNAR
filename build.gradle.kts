@@ -1,4 +1,6 @@
-// Top-level build file where you can add configuration options common to all sub-modules
+// Top-level build file where you can add configuration options common
+// to all sub-modules
+// v.4.2.2
 plugins {
     id("com.android.application") version "8.2.2" apply false
     id("com.android.library") version "8.2.2" apply false
