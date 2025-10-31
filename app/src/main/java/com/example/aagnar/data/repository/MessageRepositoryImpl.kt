@@ -47,11 +47,15 @@ class MessageRepositoryImpl @Inject constructor(
             id = this.id,
             contactName = this.contactName,
             content = this.content,
-            timestamp = Date(this.timestamp),  // ← Date вместо Long
-            isDelivered = this.isDelivered,
-            isRead = this.isRead,
-            isEncrypted = this.isEncrypted
-            // УБРАТЬ поля которых нет в MessageEntity: text, type, isVoiceMessage, hasAttachment, isSynced
+            timestamp = Date(this.timestamp),
+            type = this.type.name,
+            isDelivered = this.isDelivered ?: false,
+            isRead = this.isRead ?: false,
+            isEncrypted = this.isEncrypted ?: false,
+            isVoiceMessage = this.isVoiceMessage ?: false,
+            hasAttachment = this.hasAttachment ?: false,
+            filePath = this.fileInfo?.uri?.toString() ?: "",
+            voiceDuration = this.voiceMessageInfo?.duration ?: 0
         )
     }
 
@@ -60,12 +64,30 @@ class MessageRepositoryImpl @Inject constructor(
             id = this.id,
             contactName = this.contactName,
             content = this.content,
-            timestamp = this.timestamp.time,  // ← Long вместо Date
-            type = MessageType.RECEIVED,  // ← ЗАДАТЬ ЗНАЧЕНИЕ ПО УМОЛЧАНИЮ
+            timestamp = this.timestamp.time,
+            type = MessageType.valueOf(this.type),
             isDelivered = this.isDelivered,
             isRead = this.isRead,
-            isEncrypted = this.isEncrypted
-            // УБРАТЬ поля которых нет: text, isVoiceMessage, hasAttachment, isSynced
+            isEncrypted = this.isEncrypted,
+            isVoiceMessage = this.isVoiceMessage,
+            hasAttachment = this.hasAttachment,
+            fileInfo = if (this.filePath.isNotEmpty()) {
+                try {
+                    com.example.aagnar.domain.model.FileInfo(
+                        name = "file", // ← временное значение
+                        size = 0L,     // ← временное значение
+                        type = "file", // ← временное значение
+                        uri = android.net.Uri.parse(this.filePath)
+                    )
+                } catch (e: Exception) {
+                    null
+                }
+            } else null,
+            voiceMessageInfo = if (this.voiceDuration > 0) {
+                com.example.aagnar.domain.model.VoiceMessageInfo(
+                    duration = this.voiceDuration
+                )
+            } else null
         )
     }
 

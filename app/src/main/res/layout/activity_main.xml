@@ -20,58 +20,45 @@
             android:background="?attr/colorPrimary"
             android:theme="@style/ThemeOverlay.Material3.Dark">
 
-            <RelativeLayout
+            <!-- ЗАМЕНИЛ RelativeLayout на LinearLayout -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
-                <!-- Кнопка меню слева -->
+                <!-- Кнопки слева -->
                 <ImageButton
                     android:id="@+id/menuButton"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentStart="true"
                     android:src="@drawable/ic_menu"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Меню" />
 
-                <!-- Заголовок по центру -->
-                <TextView
-                    android:id="@+id/toolbarTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="AAGNAR"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <!-- Кнопки действий справа -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
+                <!-- Пустое пространство вместо заголовка -->
+                <View
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_alignParentEnd="true"
-                    android:orientation="horizontal">
+                    android:layout_weight="1" />
 
-                    <ImageButton
-                        android:id="@+id/searchButton"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@drawable/ic_search"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Поиск" />
+                <!-- Кнопки справа -->
+                <ImageButton
+                    android:id="@+id/searchButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_search"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Поиск" />
 
-                    <ImageButton
-                        android:id="@+id/addContactButton"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@drawable/ic_person_add"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Добавить контакт" />
+                <ImageButton
+                    android:id="@+id/addContactButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_person_add"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Добавить контакт" />
 
-                </LinearLayout>
-
-            </RelativeLayout>
+            </LinearLayout>
 
         </com.google.android.material.appbar.MaterialToolbar>
 

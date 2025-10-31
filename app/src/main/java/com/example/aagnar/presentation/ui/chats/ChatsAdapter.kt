@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import de.hdodenhof.circleimageview.CircleImageView
 import com.example.aagnar.R
 import com.example.aagnar.domain.model.Chat
+import com.google.android.material.card.MaterialCardView
 import kotlin.math.absoluteValue
 
 class ChatsAdapter(
@@ -21,7 +22,7 @@ class ChatsAdapter(
         private val contactName: TextView = itemView.findViewById(R.id.contactName)
         private val lastMessage: TextView = itemView.findViewById(R.id.lastMessage)
         private val timestamp: TextView = itemView.findViewById(R.id.timestamp)
-        private val unreadBadge: TextView = itemView.findViewById(R.id.unreadBadge)
+        private val unreadBadge: MaterialCardView = itemView.findViewById(R.id.unreadBadge)
         private val statusIndicator: View = itemView.findViewById(R.id.statusIndicator)
 
         fun bind(chat: Chat) {
@@ -32,13 +33,8 @@ class ChatsAdapter(
             // Статус онлайн
             statusIndicator.visibility = if (chat.isOnline) View.VISIBLE else View.GONE
 
-            // Бейдж непрочитанных сообщений
-            if (chat.unreadCount > 0) {
-                unreadBadge.visibility = View.VISIBLE
-                unreadBadge.text = if (chat.unreadCount > 99) "99+" else chat.unreadCount.toString()
-            } else {
-                unreadBadge.visibility = View.GONE
-            }
+            // Бейдж непрочитанных сообщений - ВРЕМЕННО ПРОСТО СКРЫВАЕМ
+            unreadBadge.visibility = if (chat.unreadCount > 0) View.VISIBLE else View.GONE
 
             // Цвет аватара
             val avatarColor = getColorForName(chat.contactName)

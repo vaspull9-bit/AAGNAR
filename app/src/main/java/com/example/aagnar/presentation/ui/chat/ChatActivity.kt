@@ -112,15 +112,16 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
+        // ФИКС: Создаем адаптер с правильными параметрами
         messagesAdapter = MessagesAdapter(
             messages = emptyList(),
             onMessageClick = { message ->
                 handleMessageClick(message)
             },
-            onFileClick = { message ->  // ← ПАРАМЕТР Message
-                handleMessageClick(message)  // ← ИСПОЛЬЗУЕМ СУЩЕСТВУЮЩИЙ МЕТОД
+            onFileClick = { message ->
+                handleMessageClick(message)
             },
-            audioViewModel = null  // ← ПЕРЕДАЕМ null ИЛИ СОЗДАЕМ AudioViewModel
+            audioViewModel = null
         )
 
         messagesRecyclerView.layoutManager = LinearLayoutManager(this)

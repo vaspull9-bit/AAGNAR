@@ -1,4 +1,4 @@
-//AAGNAR  v4.2.3
+//AAGNAR v4.2.8
 package com.example.aagnar
 
 import android.content.Intent
@@ -28,6 +28,7 @@ import kotlinx.coroutines.delay
 import java.net.Socket
 import java.net.InetSocketAddress
 import android.content.Context  // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+import com.example.aagnar.presentation.ui.chat.ChatActivity
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -147,6 +148,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         addContactButton = findViewById(R.id.addContactButton)
 
         setSupportActionBar(toolbar)
+
+
     }
 
     private fun setupViewPager() {
@@ -249,7 +252,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun showAbout() {
         android.app.AlertDialog.Builder(this)
-            .setTitle("AAGNAR v4.2.3")
+            .setTitle("AAGNAR v4.2.8")
             .setMessage("P2P клиент, DeeR Tuund (C) 2025\n\nGNU GPL-3.0-")
             .setPositiveButton("OK", null)
             .show()

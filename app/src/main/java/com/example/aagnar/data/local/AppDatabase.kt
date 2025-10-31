@@ -15,7 +15,7 @@ import com.example.aagnar.data.local.converters.DateConverter
 
 @Database(
     entities = [MessageEntity::class, ContactEntity::class, CallEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(MessageTypeConverter::class, CallStatusConverter::class, DateConverter::class)

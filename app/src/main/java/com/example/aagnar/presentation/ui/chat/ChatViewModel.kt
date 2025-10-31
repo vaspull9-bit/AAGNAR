@@ -49,6 +49,18 @@ class ChatViewModel @Inject constructor(
 
     init {
         observeWebSocket()
+        connectWebSocket() // ← ДОБАВИТЬ подключение при создании
+    }
+
+    private fun connectWebSocket() {
+        viewModelScope.launch {
+            val prefs = android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+            val username = prefs.getString("username", "") ?: ""
+            if (username.isNotEmpty()) {
+                // Используем метод connect с username из WebSocketRepository
+                (webSocketRepository as? com.example.aagnar.data.repository.WebSocketRepository)?.connect(username)
+            }
+        }
     }
 
     // Методы для голосовых сообщений
@@ -166,47 +178,25 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    // Обновляем метод sendMessage
+    // ИСПРАВЛЕННЫЙ метод sendMessage
     fun sendMessage(contactName: String, content: String) {
         viewModelScope.launch {
             val messageId = UUID.randomUUID().toString()
 
-            // Проверяем есть ли ключ шифрования
-            val finalContent = if (encryptionService.hasEncryptionKey(contactName)) {
-                // Шифруем сообщение
-                encryptionService.encryptMessage(contactName, content) ?: content
-            } else {
-                content
-            }
-
             val newMessage = Message(
                 id = messageId,
                 contactName = contactName,
-                content = finalContent,
+                content = content,
                 timestamp = System.currentTimeMillis(),
                 type = MessageType.SENT,
-                isDelivered = false,
-                isEncrypted = encryptionService.hasEncryptionKey(contactName)
+                isDelivered = false
             )
 
             // Сохраняем в локальную базу
             messageRepository.insertMessage(newMessage)
 
-            // Отправляем через WebSocket
-            if (encryptionService.hasEncryptionKey(contactName)) {
-                webSocketRepository.sendEncryptedMessage(contactName, finalContent, messageId)
-            } else {
-                // Создать JSON сообщение
-                val messageJson = """
-    {
-        "to": "$contactName",
-        "content": "$finalContent", 
-        "messageId": "$messageId"
-    }
-""".trimIndent()
-
-                webSocketRepository.sendMessage(messageJson)
-            }
+            // ОТПРАВЛЯЕМ через WebSocketRepository
+            webSocketRepository.sendMessage(contactName, content, messageId)
 
             // Обновляем UI
             val currentMessages = _messages.value.orEmpty().toMutableList()
@@ -256,6 +246,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    // ИСПРАВЛЕННЫЙ метод observeWebSocket
     private fun observeWebSocket() {
         viewModelScope.launch {
             // Наблюдаем за состоянием соединения
@@ -265,12 +256,9 @@ class ChatViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            // Наблюдаем за входящими сообщениями
-            webSocketRepository.observeMessages()?.collect { messageJson ->
-                try {
-                    // Парсим JSON в объект Message
-                    val message = parseMessageFromJson(messageJson)
-
+            // Наблюдаем за входящими сообщениями через StateFlow<Message>
+            webSocketRepository.getIncomingMessages()?.collect { messages ->
+                messages.forEach { message ->
                     if (message.contactName == currentContact) {
                         // Сохраняем в базу данных
                         viewModelScope.launch {
@@ -285,24 +273,11 @@ class ChatViewModel @Inject constructor(
                         // Помечаем как прочитанные
                         markMessageAsRead(message.id)
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
             }
         }
     }
 
-    private fun parseMessageFromJson(json: String): Message {
-        // TODO: Реализовать парсинг JSON в Message
-        // Временная заглушка
-        return Message(
-            id = UUID.randomUUID().toString(),
-            contactName = "unknown",
-            content = json,
-            timestamp = System.currentTimeMillis(),
-            type = MessageType.RECEIVED
-        )
-    }
 
     override fun onCleared() {
         super.onCleared()

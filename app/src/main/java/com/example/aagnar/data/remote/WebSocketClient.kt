@@ -672,4 +672,27 @@ class WebSocketClient(
         batchExecutor.shutdownNow()
         reconnectHandler.removeCallbacksAndMessages(null)
     }
+
+
+    fun sendContactInvite(toUser: String, myUsername: String) {
+        val invite = JSONObject().apply {
+            put("type", "contact_invite")
+            put("from", username)
+            put("to", toUser)
+            put("inviter_username", myUsername)
+            put("timestamp", System.currentTimeMillis())
+        }
+        sendMessageImmediate(invite.toString())
+    }
+
+    fun acceptContactInvite(fromUser: String) {
+        val accept = JSONObject().apply {
+            put("type", "contact_accept")
+            put("from", username)
+            put("to", fromUser)
+            put("timestamp", System.currentTimeMillis())
+        }
+        sendMessageImmediate(accept.toString())
+    }
+
 }

@@ -27,6 +27,9 @@ data class MessageEntity(
     @ColumnInfo(name = "timestamp")
     val timestamp: Date,
 
+    @ColumnInfo(name = "type")
+    val type: String, // ← ДОБАВИТЬ: "SENT", "RECEIVED", "SYSTEM"
+
     @ColumnInfo(name = "isDelivered")
     val isDelivered: Boolean = false,
 
@@ -34,5 +37,17 @@ data class MessageEntity(
     val isRead: Boolean = false,
 
     @ColumnInfo(name = "isEncrypted")
-    val isEncrypted: Boolean = false
+    val isEncrypted: Boolean = false,
+
+    @ColumnInfo(name = "isVoiceMessage")
+    val isVoiceMessage: Boolean = false, // ← ДОБАВИТЬ
+
+    @ColumnInfo(name = "hasAttachment")
+    val hasAttachment: Boolean = false, // ← ДОБАВИТЬ
+
+    @ColumnInfo(name = "filePath")
+    val filePath: String = "", // ← ДОБАВИТЬ: для хранения URI файла
+
+    @ColumnInfo(name = "voiceDuration")
+    val voiceDuration: Int = 0 // ← ДОБАВИТЬ: длительность голосового сообщения
 )

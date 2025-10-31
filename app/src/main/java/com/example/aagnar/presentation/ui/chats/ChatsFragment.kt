@@ -1,15 +1,19 @@
 package com.example.aagnar.presentation.ui.chats
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.aagnar.R
+import com.example.aagnar.presentation.ui.chat.ChatActivity
 import com.example.aagnar.util.PerformanceMonitor
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import com.example.aagnar.domain.model.Chat
 
 @AndroidEntryPoint
 class ChatsFragment : Fragment() {
@@ -33,6 +37,48 @@ class ChatsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         performanceMonitor.measure("ChatsFragment.onViewCreated") {
+            // Временные тестовые чаты вместо реальных
+            val testChats = listOf(
+                Chat(
+                    id = "1",
+                    contactName = "Test Contact 1",
+                    lastMessage = "Привет!",
+                    timestamp = System.currentTimeMillis(),
+                    unreadCount = 0,
+                    isOnline = true
+                ),
+                Chat(
+                    id = "2",
+                    contactName = "Test Contact 2",
+                    lastMessage = "Как дела?",
+                    timestamp = System.currentTimeMillis() - 300000,
+                    unreadCount = 2,
+                    isOnline = false
+                ),
+                Chat(
+                    id = "3",
+                    contactName = "Test Contact 3",
+                    lastMessage = "Договорились",
+                    timestamp = System.currentTimeMillis() - 86400000,
+                    unreadCount = 0,
+                    isOnline = true
+                )
+            )
+
+            // Используем существующий ChatsAdapter
+            val recyclerView = view.findViewById<RecyclerView>(R.id.chatsRecyclerView)
+            if (recyclerView != null) {
+                val adapter = ChatsAdapter(testChats) { chat ->
+                    val intent = Intent(requireContext(), ChatActivity::class.java).apply {
+                        putExtra("contact_name", chat.contactName)
+                    }
+                    startActivity(intent)
+                }
+                recyclerView.adapter = adapter
+                recyclerView.layoutManager = LinearLayoutManager(requireContext())
+            }
+
+            // Сохраняем существующие вызовы если они есть
             initViews(view)
             setupRecyclerView()
             loadChats()

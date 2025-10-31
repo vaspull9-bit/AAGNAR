@@ -71,6 +71,25 @@ class WebSocketRepository @Inject constructor(
         webSocketClient?.sendTypingIndicator(toUser, isTyping)
     }
 
+    // ДОБАВИТЬ в WebSocketRepository.kt
+    override fun sendContactInvite(toUser: String) {
+        val username = getUsernameFromPrefs()
+        // Используем webSocketClient который объявлен в классе
+        webSocketClient?.sendContactInvite(toUser, username)
+    }
+
+    override fun acceptContactInvite(fromUser: String) {
+        // Используем webSocketClient который объявлен в классе
+        webSocketClient?.acceptContactInvite(fromUser)
+    }
+
+    private fun getUsernameFromPrefs(): String {
+        // context уже есть в классе через @ApplicationContext
+        val prefs = context.getSharedPreferences("user", Context.MODE_PRIVATE)
+        return prefs.getString("username", "user_${System.currentTimeMillis()}") ?: "user_${System.currentTimeMillis()}"
+    }
+
+
     // Существующие методы
 
     override fun sendFileChunk(

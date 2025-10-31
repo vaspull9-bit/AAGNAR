@@ -35,6 +35,7 @@
 
         <!-- 🔥 ГЛАВНАЯ АКТИВНОСТЬ ПРИ ЗАПУСКЕ -->
         <activity
+
             android:name=".AccountSelectionActivity"
             android:exported="true">
             <intent-filter>
@@ -46,6 +47,8 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".RegistrationActivity" />
         <activity android:name=".SignInActivity" />
+        <!-- ДОБАВИТЬ ЭТУ СТРОКУ -->
+        <activity android:name=".presentation.ui.chat.ChatActivity"/>
 
     </application>
 </manifest>
