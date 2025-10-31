@@ -1,4 +1,5 @@
 //AAGNAR v4.2.8
+// Стабильная версия с тестовым чатом
 package com.example.aagnar
 
 import android.content.Intent
