@@ -92,7 +92,19 @@ class ChatActivity : AppCompatActivity() {
     private fun setupUI() {
         toolbarTitle.text = contactName
         backButton.setOnClickListener {
-            finish()
+            // Проверяем есть ли неотправленное сообщение
+            if (messageInput.text.toString().isNotEmpty()) {
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Неотправленное сообщение")
+                    .setMessage("У вас есть неотправленное сообщение. Вы уверены что хотите выйти?")
+                    .setPositiveButton("Выйти") { _, _ ->
+                        finish()
+                    }
+                    .setNegativeButton("Остаться", null)
+                    .show()
+            } else {
+                finish()
+            }
         }
 
         voiceCallButton.setOnClickListener {

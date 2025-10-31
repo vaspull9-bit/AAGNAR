@@ -1,4 +1,4 @@
-//AAGNAR v4.2.8
+//AAGNAR v4.2.12
 // Стабильная версия с тестовым чатом
 package com.example.aagnar
 
@@ -253,7 +253,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun showAbout() {
         android.app.AlertDialog.Builder(this)
-            .setTitle("AAGNAR v4.2.8")
+            .setTitle("AAGNAR v4.2.12")
             .setMessage("P2P клиент, DeeR Tuund (C) 2025\n\nGNU GPL-3.0-")
             .setPositiveButton("OK", null)
             .show()

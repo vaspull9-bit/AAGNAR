@@ -82,12 +82,12 @@ class MessagesAdapter(
     inner class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val messageText: TextView = itemView.findViewById(R.id.messageText)
         private val timeText: TextView = itemView.findViewById(R.id.timeText)
-        private val statusIndicator: ImageView = itemView.findViewById(R.id.statusIndicator)
+        private val statusIndicator: View = itemView.findViewById(R.id.statusIndicator)
 
         fun bind(message: Message) {
             messageText.text = message.content
             timeText.text = formatTime(message.timestamp)
-            updateStatus(message)
+            updateStatus(message) // ← ОБНОВЛЯЕМ СТАТУС
 
             itemView.setOnClickListener {
                 onMessageClick(message)
@@ -96,11 +96,11 @@ class MessagesAdapter(
 
         fun updateStatus(message: Message) {
             val statusRes = when {
-                message.isRead -> R.drawable.ic_delivered  // ВРЕМЕННОЕ РЕШЕНИЕ
-                message.isDelivered -> R.drawable.ic_delivered
-                else -> R.drawable.ic_send  // ИСПОЛЬЗУЕМ СУЩЕСТВУЮЩИЙ РЕСУРС
+                message.isRead -> R.drawable.ic_read // ✅ Прочитано
+                message.isDelivered -> R.drawable.ic_delivered // 🔵 Доставлено
+                else -> R.drawable.ic_sent // ⚪ Отправлено
             }
-            statusIndicator.setImageResource(statusRes)
+            statusIndicator.setBackgroundResource(statusRes) // ← ИСПРАВИЛ НА setBackgroundResource
         }
     }
 

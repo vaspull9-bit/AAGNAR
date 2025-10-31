@@ -26,16 +26,7 @@
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
 
-                <!-- Кнопки слева -->
-                <ImageButton
-                    android:id="@+id/menuButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_menu"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Меню" />
-
-                <!-- Пустое пространство вместо заголовка -->
+                <!-- Пустое пространство слева -->
                 <View
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -44,19 +35,28 @@
                 <!-- Кнопки справа -->
                 <ImageButton
                     android:id="@+id/searchButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_search"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Поиск" />
+                    android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_search"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Поиск" />
 
                 <ImageButton
                     android:id="@+id/addContactButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_person_add"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Добавить контакт" />
+                    android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_person_add"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Добавить контакт" />
+
+                <!-- Троеточие (настройки) -->
+                <ImageButton
+                    android:id="@+id/menuButton"
+                    android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_more_vert"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Настройки" />
 
             </LinearLayout>
 
