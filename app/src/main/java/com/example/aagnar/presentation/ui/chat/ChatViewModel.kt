@@ -285,4 +285,48 @@ class ChatViewModel @Inject constructor(
             webSocketRepository.disconnect()
         }
     }
+
+    // В ChatViewModel.kt ДОБАВИТЬ:
+    fun deleteChat(contactName: String) {
+        viewModelScope.launch {
+            messageRepository.deleteChat(contactName)
+        }
+    }
+
+    fun deleteAllChats() {
+        viewModelScope.launch {
+            messageRepository.deleteAllChats()
+        }
+    }
+    // В ChatViewModel.kt ДОБАВИТЬ:
+    fun updateMessage(messageId: String, newContent: String) {
+        viewModelScope.launch {
+            val message = messageRepository.getMessageById(messageId)
+            message?.let {
+                val updatedMessage = it.copy(content = newContent)
+                messageRepository.updateMessage(updatedMessage)
+
+                // Обновляем UI
+                val currentMessages = _messages.value.orEmpty().toMutableList()
+                val index = currentMessages.indexOfFirst { msg -> msg.id == messageId }
+                if (index != -1) {
+                    currentMessages[index] = updatedMessage
+                    _messages.value = currentMessages
+                }
+            }
+        }
+    }
+
+    fun deleteMessage(messageId: String) {
+        viewModelScope.launch {
+            // TODO: Добавить метод delete в репозиторий
+            // messageRepository.deleteMessage(messageId)
+
+            // Временно обновляем UI
+            val currentMessages = _messages.value.orEmpty().toMutableList()
+            currentMessages.removeAll { it.id == messageId }
+            _messages.value = currentMessages
+        }
+    }
+
 }

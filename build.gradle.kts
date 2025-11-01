@@ -1,6 +1,6 @@
 // Top-level build file where you can add configuration options common
 // to all sub-modules
-// v4.2.12
+// v4.3.1 - тестирование WEBRTC
 plugins {
     id("com.android.application") version "8.2.2" apply false
     id("com.android.library") version "8.2.2" apply false

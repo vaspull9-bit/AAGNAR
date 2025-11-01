@@ -1,5 +1,6 @@
-//AAGNAR v4.2.12
+//AAGNAR v4.3.1 -
 // Стабильная версия с тестовым чатом
+// С версии 4.3.0 начинается тестирование WEBRTC 01/11/2025
 package com.example.aagnar
 
 import android.content.Intent
@@ -30,6 +31,7 @@ import java.net.Socket
 import java.net.InetSocketAddress
 import android.content.Context  // ← ДОБАВЬТЕ ЭТУ СТРОКУ
 import com.example.aagnar.presentation.ui.chat.ChatActivity
+import com.example.aagnar.presentation.ui.contacts.AddContactDialog
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -149,8 +151,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         addContactButton = findViewById(R.id.addContactButton)
 
         setSupportActionBar(toolbar)
-
-
     }
 
     private fun setupViewPager() {
@@ -175,10 +175,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         addContactButton.setOnClickListener {
-            showMessage("Добавить контакт")
+
+            showAddContactDialog()
         }
     }
 
+    // ДОБАВЛЯЕМ МЕТОД ДИАЛОГА:
+    private fun showAddContactDialog() {
+        val dialog = AddContactDialog()
+        dialog.show(supportFragmentManager, "AddContactDialog")
+    }
     private fun setupNavigation() {
         navigationView.setNavigationItemSelectedListener(this)
     }
@@ -253,8 +259,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun showAbout() {
         android.app.AlertDialog.Builder(this)
-            .setTitle("AAGNAR v4.2.12")
-            .setMessage("P2P клиент, DeeR Tuund (C) 2025\n\nGNU GPL-3.0-")
+            .setTitle("AAGNAR v4.3.1")
+            .setMessage("P2P клиент, DeeR Tuund (C) 2025\n\nWEBRTC GNU GPL-3.0-")
             .setPositiveButton("OK", null)
             .show()
     }

@@ -5,11 +5,13 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextWatcher
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.aagnar.R
@@ -17,6 +19,8 @@ import com.example.aagnar.domain.model.FileInfo
 import com.example.aagnar.domain.model.Message
 import com.example.aagnar.domain.model.MessageType
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ChatActivity : AppCompatActivity() {
@@ -64,6 +68,11 @@ class ChatActivity : AppCompatActivity() {
         initViews()
 
         contactName = intent.getStringExtra("contact_name") ?: "Unknown"
+
+        // ДОБАВИТЬ ЭТУ СТРОКУ:
+        viewModel.loadMessages(contactName) // ← ЗАГРУЖАЕМ СООБЩЕНИЯ ИЗ БД
+
+
         setupUI()
         setupRecyclerView()
         setupClickListeners()
@@ -219,6 +228,7 @@ class ChatActivity : AppCompatActivity() {
         if (messageText.isNotEmpty()) {
             viewModel.sendMessage(contactName, messageText)
             messageInput.setText("")
+
         }
     }
 

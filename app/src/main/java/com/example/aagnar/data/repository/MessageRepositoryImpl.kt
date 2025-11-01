@@ -40,6 +40,25 @@ class MessageRepositoryImpl @Inject constructor(
         messageDao.markAsRead(messageId)
     }
 
+    // В MessageRepository.kt ДОБАВИТЬ:
+    suspend fun deleteChat(contactName: String) {
+        messageDao.deleteMessagesByContact(contactName)
+    }
+
+    suspend fun deleteAllChats() {
+        messageDao.deleteAllMessages()
+    }
+
+    // В MessageRepository.kt ДОБАВИТЬ:
+    suspend fun updateMessage(message: Message) {
+        messageDao.updateMessage(message.toEntity())
+    }
+
+    suspend fun getMessageById(messageId: String): Message? {
+        return messageDao.getMessageById(messageId)?.toDomain()
+    }
+
+
     // Extension functions for conversion between Domain and Entity
     // Extension functions for conversion between Domain and Entity
     private fun Message.toEntity(): MessageEntity {

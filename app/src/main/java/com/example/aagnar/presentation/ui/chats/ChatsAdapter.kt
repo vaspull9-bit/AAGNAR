@@ -43,7 +43,27 @@ class ChatsAdapter(
             itemView.setOnClickListener {
                 onChatClick(chat)
             }
+
+            // В ChatsAdapter.kt ДОБАВИТЬ в bind():
+            itemView.setOnLongClickListener {
+                showChatOptions(chat)
+                true
+            }
+
         }
+
+        private fun showChatOptions(chat: Chat) {
+            val options = arrayOf("Удалить чат", "Отмена")
+            androidx.appcompat.app.AlertDialog.Builder(itemView.context)
+                .setTitle("Управление чатом")
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> onChatLongClick(chat) // Удалить чат
+                    }
+                }
+                .show()
+        }
+
 
         private fun formatTimestamp(timestamp: Long): String {
             val diff = System.currentTimeMillis() - timestamp

@@ -281,6 +281,12 @@ class MessagesAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val message = messages[position]
 
+        // В MessagesAdapter ДОБАВИТЬ в onBindViewHolder:
+        holder.itemView.setOnLongClickListener {
+            showMessageOptions(message)
+            true
+        }
+
         when (holder) {
             is SentMessageViewHolder -> holder.bind(message)
             is ReceivedMessageViewHolder -> holder.bind(message)
@@ -289,6 +295,39 @@ class MessagesAdapter(
             is SystemMessageViewHolder -> holder.bind(message)
         }
     }
+    private fun showMessageOptions(message: Message) {
+        val options = arrayOf("Редактировать", "Удалить", "Отмена")
+        androidx.appcompat.app.AlertDialog.Builder(holder.itemView.context)
+            .setTitle("Сообщение")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> editMessage(message) // Редактировать
+                    1 -> deleteMessage(message) // Удалить
+                }
+            }
+            .show()
+    }
+
+    private fun editMessage(message: Message) {
+        val dialogView = LayoutInflater.from(holder.itemView.context)
+            .inflate(R.layout.dialog_edit_message, null)
+        val editText = dialogView.findViewById<EditText>(R.id.editMessageInput)
+        editText.setText(message.content)
+
+        androidx.appcompat.app.AlertDialog.Builder(holder.itemView.context)
+            .setView(dialogView)
+            .setTitle("Редактировать сообщение")
+            .setPositiveButton("Сохранить") { _, _ ->
+                val newContent = editText.text.toString()
+                if (newContent.isNotEmpty()) {
+                    onMessageEdit(message.id, newContent)
+                }
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
+
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isNotEmpty()) {

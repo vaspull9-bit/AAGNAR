@@ -41,4 +41,17 @@ interface MessageDao {
     @Query("UPDATE messages SET isRead = 1 WHERE id = :messageId")
     suspend fun markAsRead(messageId: String)
 
+    // В MessageDao.kt ДОБАВИТЬ:
+    @Query("DELETE FROM messages WHERE contactName = :contactName")
+    suspend fun deleteMessagesByContact(contactName: String)
+
+    @Query("DELETE FROM messages")
+    suspend fun deleteAllMessages()
+    // В MessageDao.kt ДОБАВИТЬ:
+    @Query("SELECT * FROM messages WHERE id = :messageId")
+    suspend fun getMessageById(messageId: String): MessageEntity?
+
+    @Update
+    suspend fun updateMessage(message: MessageEntity)
+
 }
